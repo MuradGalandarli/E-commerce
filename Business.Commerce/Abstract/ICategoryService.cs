@@ -9,6 +9,7 @@ namespace Business.Commerce.Abstract
 {
     public interface ICategoryService:IGenericService<Category>
     {
-
+        public Task<List<Category>> getallCategory();
+        public Task Delete(int id);
     }
 }

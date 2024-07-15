@@ -21,28 +21,45 @@ namespace Business.Commerce.Concret
 
         public async Task<Category> Add(Category t)
         {
+            t.CategoryStatus = true;
           return await _categoryDal.Add(t);
 
         }
 
         public async Task Delete(int id)
+         {
+          await _categoryDal.RemoveCategory(id);
+          
+        }
+
+        public async Task<List<Category>> getallCategory()
         {
-           await _categoryDal.Delete(id);
+            var result = await _categoryDal.getallCategory();
+
+            return result;
         }
 
         public async Task<Category> GetbyId(int id)
         {
-           return await _categoryDal.GetById(id);
+            
+           var result = await _categoryDal.GetById(id);
+            if(result.CategoryStatus)
+            {
+                return result;
+            }
+            return null;
         }
 
         public async Task<List<Category>> GetList()
         {
-          var result = await _categoryDal.GetAll();
+          var result = await _categoryDal.getallCategory();
+         
             return result;
         }
 
         public async Task<Category> Update(Category t)
         {
+            t.CategoryStatus = true; 
            return await _categoryDal.Update(t);
         }
     }
