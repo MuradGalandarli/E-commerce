@@ -38,14 +38,16 @@ namespace DataAccess.Commerce.Concrete
                 await _context.SaveChangesAsync();
             }*/
 
-            public async Task RemoveCategory(int id)
+            public async Task<bool> RemoveCategory(int id)
             {
             var result = await _context.Categories.FindAsync(id);
                 if (result != null)
                 {    
                     result.CategoryStatus = false;
                    await  _context.SaveChangesAsync();
+                return true;
                 }
+                return false;
             }
     }
 }

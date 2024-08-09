@@ -126,7 +126,7 @@ namespace Api.E_Commerce.Controllers.Admin
                 return Ok(result.Message);
             }
 
-            return Ok(result.Message);
+            return BadRequest(result.Message);
         }
 
 

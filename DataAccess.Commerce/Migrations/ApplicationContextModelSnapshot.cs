@@ -124,15 +124,16 @@ namespace DataAccess.Commerce.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Color")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("GoodsName")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<float>("Long")
+                    b.Property<float?>("Long")
                         .HasColumnType("real");
+
+                    b.Property<int>("Price")
+                        .HasColumnType("integer");
 
                     b.Property<int>("SellerId")
                         .HasColumnType("integer");
@@ -143,10 +144,10 @@ namespace DataAccess.Commerce.Migrations
                     b.Property<int>("Stock")
                         .HasColumnType("integer");
 
-                    b.Property<float>("Weight")
+                    b.Property<float?>("Weight")
                         .HasColumnType("real");
 
-                    b.Property<float>("Width")
+                    b.Property<float?>("Width")
                         .HasColumnType("real");
 
                     b.HasKey("GoodsId");
@@ -166,17 +167,14 @@ namespace DataAccess.Commerce.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderId"));
 
-                    b.Property<bool>("Basket")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("Buy")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("GoodsId")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("boolean");
+                    b.Property<byte>("NumberOfGoods")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
@@ -190,6 +188,30 @@ namespace DataAccess.Commerce.Migrations
                     b.ToTable("Orders");
                 });
 
+            modelBuilder.Entity("EntityCommerce.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CustomerID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PaymentID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserID")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Patments");
+                });
+
             modelBuilder.Entity("EntityCommerce.Seller", b =>
                 {
                     b.Property<int>("SellerId")
@@ -198,30 +220,32 @@ namespace DataAccess.Commerce.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("SellerId"));
 
-                    b.Property<string>("Password")
+                    b.Property<string>("ApplicationUserId")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Password")
                         .HasColumnType("text");
 
                     b.Property<string>("Rol")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SellerGmail")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SellerName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("SellerSureName")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<bool>("Status")
                         .HasColumnType("boolean");
 
                     b.HasKey("SellerId");
+
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique();
 
                     b.ToTable("Sellers");
                 });
@@ -233,6 +257,10 @@ namespace DataAccess.Commerce.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Gmail")
                         .IsRequired()
@@ -258,6 +286,9 @@ namespace DataAccess.Commerce.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -422,7 +453,7 @@ namespace DataAccess.Commerce.Migrations
                         .IsRequired();
 
                     b.HasOne("EntityCommerce.User", "User")
-                        .WithMany()
+                        .WithMany("Order")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -430,6 +461,24 @@ namespace DataAccess.Commerce.Migrations
                     b.Navigation("Goods");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("EntityCommerce.Seller", b =>
+                {
+                    b.HasOne("EntityCommerce.ApplicationUser", null)
+                        .WithOne("Seller")
+                        .HasForeignKey("EntityCommerce.Seller", "ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("EntityCommerce.User", b =>
+                {
+                    b.HasOne("EntityCommerce.ApplicationUser", null)
+                        .WithOne("usre")
+                        .HasForeignKey("EntityCommerce.User", "ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -483,6 +532,15 @@ namespace DataAccess.Commerce.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("EntityCommerce.ApplicationUser", b =>
+                {
+                    b.Navigation("Seller")
+                        .IsRequired();
+
+                    b.Navigation("usre")
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("EntityCommerce.Goods", b =>
                 {
                     b.Navigation("Order");
@@ -491,6 +549,11 @@ namespace DataAccess.Commerce.Migrations
             modelBuilder.Entity("EntityCommerce.Seller", b =>
                 {
                     b.Navigation("Goods");
+                });
+
+            modelBuilder.Entity("EntityCommerce.User", b =>
+                {
+                    b.Navigation("Order");
                 });
 #pragma warning restore 612, 618
         }

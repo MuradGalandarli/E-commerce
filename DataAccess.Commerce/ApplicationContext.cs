@@ -53,10 +53,10 @@ namespace DataAccess.Commerce
         public DbSet<Goods> Goodses { get; set; }
         public DbSet<Seller> Sellers { get; set; }
         public DbSet<User> Users { get; set; }
+        
+        public DbSet<Payment>Patments { get; set; }
 
 
 
-
-       
     }
 }

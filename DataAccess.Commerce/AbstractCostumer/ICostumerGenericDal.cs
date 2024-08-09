@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Commerce.Abstract
+namespace DataAccess.Commerce.AbstractCostumer
 {
-    public interface IOrderDal:IGeneric<Order>
+    public interface ICostumerGenericDal<T> where T :class
     {
+        public Task<List<T>> getAllList();
     }
 }

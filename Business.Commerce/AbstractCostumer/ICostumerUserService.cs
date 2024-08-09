@@ -5,9 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DataAccess.Commerce.Abstract
+namespace Business.Commerce.AbstractCostumer
 {
-    public interface IUserDal:IGeneric<User>
+    public interface ICostumerUserService
     {
+        public Task<List<User>> TheUsersPurchaseHistory(int userId);
     }
 }

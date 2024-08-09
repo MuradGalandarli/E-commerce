@@ -23,19 +23,31 @@ namespace Business.Commerce.Concret
             return t;
         }
 
-        public async Task Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-           await _goodsDal.Delete(id);
+            
+         var isTrue = await _goodsDal.RemoveGoods(id);
+           
+            return isTrue;
         }
 
         public async Task<Goods> GetbyId(int id)
         {
-          return await _goodsDal.GetById(id);
+          var result = await _goodsDal.GetById(id);
+            if (result == null)
+            {
+                return result;
+            }
+            if(result.Status)
+            {
+                return result;  
+            }
+            return null;
         }
 
         public async Task<List<Goods>> GetList()
         {
-            return await  _goodsDal.GetAll();
+            return await _goodsDal.getallGoods();
         }
 
         public async Task<Goods> Update(Goods t)

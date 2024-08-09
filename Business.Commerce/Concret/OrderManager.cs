@@ -1,6 +1,7 @@
 ﻿using Business.Commerce.Abstract;
-using DataAccess.Commerce.Abstract;
+using DataAccess.Commerce.AbstractCostumer;
 using EntityCommerce;
+using EntityCommerce.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,9 +12,9 @@ namespace Business.Commerce.Concret
 {
     public class OrderManager : IOrderService
     {
-        private readonly IOrderDal _orderDal;
+        private readonly ICostumerOrderDal _orderDal;
 
-        public OrderManager(IOrderDal orderDal)
+        public OrderManager(ICostumerOrderDal orderDal)
         {
             _orderDal = orderDal;
         }
@@ -24,19 +25,32 @@ namespace Business.Commerce.Concret
             return t;
         }
 
-        public async Task Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-           await _orderDal.Delete(id);
+            
+         var isTrue = await _orderDal.RemoveOrder(id);
+
+            return isTrue;
         }
 
         public async Task<Order> GetbyId(int id)
         {
-           return await _orderDal.GetById(id);
+           var result = await _orderDal.GetById(id);
+         if(result != null && result.OrderStatus != Enums.OrderEnum.Canceled)
+            {
+                return result;
+            }
+
+           /* if (result.OrderStatus)
+            {
+                return result;
+            }*/
+            return null;
         }
 
         public async Task<List<Order>> GetList()
         {
-            return await _orderDal.GetAll();
+            return await _orderDal.getallOrder();
         }
 
         public async Task<Order> Update(Order t)

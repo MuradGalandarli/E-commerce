@@ -35,7 +35,9 @@ namespace Business.Commerce.Concret
         private readonly IUrlHelper _urlHelper;
 
 
-        public AuthManager(IUrlHelperFactory urlHelperFactory, IActionContextAccessor actionContextAccessor,
+        public AuthManager(
+            IUrlHelperFactory urlHelperFactory,
+            IActionContextAccessor actionContextAccessor,
             UserManager<ApplicationUser> _userManager,
             RoleManager<IdentityRole> _roleManager,
             IConfiguration _configuration,
@@ -160,7 +162,7 @@ namespace Business.Commerce.Concret
             {
                 await _userManager.AddToRoleAsync(user, model.Role);
             }
-            message.Add("User created ");
+            message.Add($"User created,{user.Id}");
             return (true,message);
             
         }

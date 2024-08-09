@@ -1,5 +1,5 @@
 ﻿using Business.Commerce.Abstract;
-using DataAccess.Commerce.Abstract;
+using DataAccess.Commerce.AbstractCostumer;
 using EntityCommerce;
 using System;
 using System.Collections.Generic;
@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace Business.Commerce.Concret
 {
-    public class UserManager : IGenericService<User>
+    public class UserManager : IUserService
     {
-        private readonly IUserDal _userDal;
-        public UserManager(IUserDal userDal)
+        private readonly ICostumerUserDal _userDal;
+        public UserManager(ICostumerUserDal userDal)
         {
             _userDal = userDal;
         }
@@ -22,19 +22,26 @@ namespace Business.Commerce.Concret
             return t;
         }
 
-        public async Task Delete(int id)
+        public async Task<bool> Delete(int id)
         {
-           await _userDal.Delete(id);
+          var isTrue = await _userDal.RemoveUser(id);
+           return isTrue;
         }
 
         public async Task<User> GetbyId(int id)
         {
-          return await _userDal.GetById(id);
+          var result = await _userDal.GetById(id);
+/*
+            if (result.Status)
+            {
+                return result;
+            }*/
+            return null;
         }
 
         public async Task<List<User>> GetList()
         {
-           return await _userDal.GetAll();
+           return await _userDal.getallUser();
         }
 
         public async Task<User> Update(User t)

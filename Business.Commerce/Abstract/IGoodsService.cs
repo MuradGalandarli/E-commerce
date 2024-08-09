@@ -9,5 +9,6 @@ namespace Business.Commerce.Abstract
 {
     public interface IGoodsService:IGenericService<Goods>
     {
+      
     }
 }

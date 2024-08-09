@@ -14,5 +14,11 @@ namespace EntityCommerce
     {
         public string? PasswordResetToken { get; set; }
         public DateTime? PasswordResetTokenExpiry { get; set; }
+      /*  public ICollection<Order> Orders { get; set; }*/
+
+        public User usre { get; set; }
+        public Seller Seller { get; set; }
+
+
     }
 }

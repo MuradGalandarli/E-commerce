@@ -9,5 +9,7 @@ namespace DataAccess.Commerce.Abstract
 {
     public interface ISellerDal:IGeneric<Seller>
     {
+        public Task<bool> RemoveSeller(int id);
+        public Task<List<Seller>> getallSeller();
     }
 }

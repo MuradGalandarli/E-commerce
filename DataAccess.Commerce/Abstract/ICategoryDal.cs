@@ -10,7 +10,7 @@ namespace DataAccess.Commerce.Abstract
 {
     public interface ICategoryDal:IGeneric<Category>
     {
-        public Task RemoveCategory(int id);
+        public Task<bool> RemoveCategory(int id);
         public Task <List<Category>> getallCategory();
     }
 }

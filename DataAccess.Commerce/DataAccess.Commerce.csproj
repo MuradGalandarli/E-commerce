@@ -17,11 +17,14 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="7.0.1" />
+    <PackageReference Include="Stripe.net" Version="44.10.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\EntityCommerce\EntityCommerce.csproj" />
+    <ProjectReference Include="..\Shared.Commerce\Shared.Commerce.csproj" />
   </ItemGroup>
 
 </Project>

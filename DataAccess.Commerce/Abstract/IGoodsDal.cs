@@ -9,5 +9,7 @@ namespace DataAccess.Commerce.Abstract
 {
    public interface IGoodsDal:IGeneric<Goods>
     {
+        public Task<bool> RemoveGoods(int id);
+        public Task<List<Goods>> getallGoods();
     }
 }

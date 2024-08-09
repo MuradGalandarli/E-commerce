@@ -18,6 +18,9 @@ namespace EntityCommerce
         public string Rol { get; set; }
         public bool Status { get; set; }
 
-        List<Order>Order { get; set; }
+        public List<Order>? Order { get; set; }
+
+        public string ApplicationUserId { get; set; }
+        ApplicationUser ApplicationUser { get; set; }
     }
 }

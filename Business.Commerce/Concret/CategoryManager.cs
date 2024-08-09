@@ -26,18 +26,14 @@ namespace Business.Commerce.Concret
 
         }
 
-        public async Task Delete(int id)
+        public async Task<bool> Delete(int id)
          {
-          await _categoryDal.RemoveCategory(id);
+          var isTrue= await _categoryDal.RemoveCategory(id);
           
+            return isTrue;
         }
 
-        public async Task<List<Category>> getallCategory()
-        {
-            var result = await _categoryDal.getallCategory();
-
-            return result;
-        }
+        
 
         public async Task<Category> GetbyId(int id)
         {

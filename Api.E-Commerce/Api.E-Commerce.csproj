@@ -30,8 +30,4 @@
     <ProjectReference Include="..\Business.Commerce\Business.Commerce.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\Costumer\" />
-  </ItemGroup>
-
 </Project>

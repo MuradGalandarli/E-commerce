@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Api.E_Commerce.Controllers.Admin
+namespace Api.E_Commerce.Controllers.Costumer
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class OrderController : ControllerBase
+    public class SellerCostumerController : ControllerBase
     {
     }
 }

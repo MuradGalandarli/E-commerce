@@ -1,8 +1,12 @@
 ﻿using Business.Commerce.Abstract;
+using Business.Commerce.AbstractCostumer;
 using Business.Commerce.Concret;
+using Business.Commerce.ConcretCostumer;
 using DataAccess.Commerce;
 using DataAccess.Commerce.Abstract;
+using DataAccess.Commerce.AbstractCostumer;
 using DataAccess.Commerce.Concrete;
+using DataAccess.Commerce.ConcreteCostumer;
 using EntityCommerce;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -13,22 +17,81 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Asn1.X509.Qualified;
 using Shared.Commerce;
 using System.Text;
+using static Business.Commerce.ConcretCostumer.PaymentManager;
 
 var builder = WebApplication.CreateBuilder(args);
-//ConfigurationManager configuration = builder.Configuration;
-// Add services to the container.
-
-
 var Configuration = builder.Configuration;
 builder.Services.AddDbContext<ApplicationContext>(options =>
 options.UseNpgsql(Configuration.GetConnectionString("WebApiDatabase")));
+
+/*
+var stripeApiKey = builder.Configuration["Stripe:ApiKey"];
+
+builder.Services.AddSingleton<IStripeRepository>(new StripeRepository(stripeApiKey));*/
+/*var stripeSection = builder.Configuration.GetSection("Stripe");
+var secretKey = stripeSection["SecretKey"];
+
+// StripeRepository'yi yapılandırın
+builder.Services.AddSingleton<IStripeRepository>(new StripeRepository(secretKey));
+builder.Services.AddScoped<PaymentService>();
+
+*/
+
+
+/*
+var stripeApiKey = builder.Configuration["Stripe:ApiKey"];
+builder.Services.AddSingleton<IStripeRepository>(sp => new StripeRepository(stripeApiKey));
+builder.Services.AddScoped<PaymentService>();
+*/
+
+
+
+
+builder.Services.AddScoped<IPaymentService,PaymentService>();
+builder.Services.AddScoped<IStripeRepository,StripeRepository>();
+
 /*
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationContext>()
     .AddDefaultTokenProviders();
 */
+builder.Services.AddScoped<ICostumerCategoryDal, EFCategoryRepositoryCostumer>();
+builder.Services.AddScoped<ICostumerGoodsDal,EFGoodsRepositoryCostumer>();
+builder.Services.AddScoped<ICostumerSellerDal, EFSellerRepositoryCostumer>();
+
+builder.Services.AddScoped<ICostumerCategorySevice,CostumerCategoryManager>();
+builder.Services.AddScoped<ICostumerGoodsService,CostumerGoodsManager>();
+builder.Services.AddScoped<ICostumerOrderService, CostumerOrderManager>();
+builder.Services.AddScoped<ICostumerSellerService, CostumerSellerManager>();
+builder.Services.AddScoped<ICostumerUserService, CostumerUserManager>();
+
+
+
+
+
+
+
+
+
+builder.Services.AddScoped<IGoodsDal,EfGoodsRepository>();
+builder.Services.AddScoped<IGoodsService, GoodsManager>();
+
+
+
+
+builder.Services.AddScoped<IOrderService,OrderManager>();
+builder.Services.AddScoped<ICostumerOrderDal,EFOrderRepositoryCostumer>();
+
+builder.Services.AddScoped<IUserService, UserManager>();
+builder.Services.AddScoped<ICostumerUserDal, EFUserRepositoryCostumer>();
+
+
+builder.Services.AddScoped<ISellerDal, EFSellerRepository>();
+builder.Services.AddScoped<ISellerService, SellerManager>();
+
 
 // builder.Services.AddScoped<IEmailService, SmtpEmailService>();
 

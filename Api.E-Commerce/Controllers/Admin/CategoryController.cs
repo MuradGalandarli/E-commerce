@@ -64,9 +64,12 @@ namespace Api.E_Commerce.Controllers.Admin
         [HttpDelete("DeleteCategory{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            await _categoryService.Delete(id);
-            return Ok();  
-            
+           var reult = await _categoryService.Delete(id);
+            if (reult)
+            {
+                return Ok();
+            }
+            return NotFound();
         }
 
 

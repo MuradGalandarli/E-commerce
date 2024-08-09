@@ -13,8 +13,9 @@ namespace Business.Commerce.Abstract
         Task<T> Update (T t);
         
         Task<T> GetbyId (int id);
+       
         Task<List<T>> GetList();
+        public Task<bool> Delete(int id);
 
-     
     }
 }
