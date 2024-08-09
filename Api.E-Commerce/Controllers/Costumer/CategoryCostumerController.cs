@@ -13,6 +13,11 @@ namespace Api.E_Commerce.Controllers.Costumer
         {
             this._categorySevice = _categorySevice;
         }
+        //test
+        /// <summary>
+        /// test branch
+        /// </summary>
+        /// <returns></returns>
 
         [HttpGet("GetAllCategory")]
         public async Task<IActionResult>GetAllCategory()
