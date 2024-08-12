@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.CodeAnalysis.Operations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -118,6 +119,9 @@ builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 builder.Services.AddScoped<ICategoryDal, EFCategoryRepository>();
 builder.Services.AddScoped<ApplicationContext>();
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
+
+builder.Services.AddScoped<IImageService,ImageManager>();
+builder.Services.AddScoped<IImageDal,EFImageRepository>();
 
 
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();

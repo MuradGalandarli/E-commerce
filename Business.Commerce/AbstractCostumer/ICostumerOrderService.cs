@@ -14,6 +14,8 @@ namespace Business.Commerce.AbstractCostumer
         public Task<Enums.OrderEnum> addtoBasket(int id, int number);
 
         public Task<(Order,bool IsSuccess)>AddOrder(Order order);
+        public Task<(Enums.OrderEnum, bool IsSucces)> abilityToTrackOrderStatus(int GoodsId, int UserId);
+
 
       //  public Task<(Goods, bool IsSuccess)> BuyGoods(BuyGoodsRequest buyGoods);
 

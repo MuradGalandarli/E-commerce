@@ -1,4 +1,5 @@
 ﻿using EntityCommerce;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,5 +12,9 @@ namespace DataAccess.Commerce.Abstract
     {
         public Task<bool> RemoveGoods(int id);
         public Task<List<Goods>> getallGoods();
+
+        public Task<Goods> AddGoods(Goods goods,IFormFile imageFile ); 
+
+
     }
 }

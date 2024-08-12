@@ -3,6 +3,7 @@ using System;
 using DataAccess.Commerce;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Commerce.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20240810120635_test4")]
+    partial class test4
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -129,6 +132,9 @@ namespace DataAccess.Commerce.Migrations
                     b.Property<string>("GoodsName")
                         .HasColumnType("text");
 
+                    b.Property<int?>("Imageid")
+                        .HasColumnType("integer");
+
                     b.Property<float?>("Long")
                         .HasColumnType("real");
 
@@ -154,6 +160,8 @@ namespace DataAccess.Commerce.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("Imageid");
+
                     b.HasIndex("SellerId");
 
                     b.ToTable("Goodses");
@@ -167,9 +175,6 @@ namespace DataAccess.Commerce.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("ImageId"));
 
-                    b.Property<int?>("GoodsId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("OriginalPath")
                         .HasColumnType("text");
 
@@ -180,8 +185,6 @@ namespace DataAccess.Commerce.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ImageId");
-
-                    b.HasIndex("GoodsId");
 
                     b.ToTable("Images");
                 });
@@ -460,6 +463,10 @@ namespace DataAccess.Commerce.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("EntityCommerce.Image", "Image")
+                        .WithMany("Goods")
+                        .HasForeignKey("Imageid");
+
                     b.HasOne("EntityCommerce.Seller", "Seller")
                         .WithMany("Goods")
                         .HasForeignKey("SellerId")
@@ -468,16 +475,9 @@ namespace DataAccess.Commerce.Migrations
 
                     b.Navigation("Category");
 
+                    b.Navigation("Image");
+
                     b.Navigation("Seller");
-                });
-
-            modelBuilder.Entity("EntityCommerce.Image", b =>
-                {
-                    b.HasOne("EntityCommerce.Goods", "Goods")
-                        .WithMany("Image")
-                        .HasForeignKey("GoodsId");
-
-                    b.Navigation("Goods");
                 });
 
             modelBuilder.Entity("EntityCommerce.Order", b =>
@@ -579,9 +579,12 @@ namespace DataAccess.Commerce.Migrations
 
             modelBuilder.Entity("EntityCommerce.Goods", b =>
                 {
-                    b.Navigation("Image");
-
                     b.Navigation("Order");
+                });
+
+            modelBuilder.Entity("EntityCommerce.Image", b =>
+                {
+                    b.Navigation("Goods");
                 });
 
             modelBuilder.Entity("EntityCommerce.Seller", b =>

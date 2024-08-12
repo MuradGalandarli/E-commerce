@@ -33,6 +33,7 @@ namespace DataAccess.Commerce
 
 
 using EntityCommerce;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 //using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -47,16 +48,19 @@ namespace DataAccess.Commerce
         {
         }
 
-        // Diğer DbSet tanımlamaları
+      
         public DbSet<Category> Categories { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Goods> Goodses { get; set; }
         public DbSet<Seller> Sellers { get; set; }
         public DbSet<User> Users { get; set; }
-        
         public DbSet<Payment>Patments { get; set; }
 
+        public DbSet<Image> Images { get; set; }
+
+    
 
 
     }
+
 }

@@ -1,5 +1,6 @@
 ﻿using DataAccess.Commerce.Abstract;
 using EntityCommerce;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,13 @@ namespace DataAccess.Commerce.Concrete
             _context = context;
 
         }
+
+        public Task<Goods> AddGoods(Goods goods, IFormFile imageFile)
+        {
+            throw new NotImplementedException();
+        }
+
+      
 
         public async Task<List<Goods>> getallGoods()
         {

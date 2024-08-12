@@ -21,6 +21,16 @@ namespace DataAccess.Commerce.ConcreteCostumer
             _context = context;
         }
 
+        public async Task<(OrderEnum, bool IsSucces)> abilityToTrackOrderStatus(int GoodsId, int UserId)
+        {
+            var result = await _context.Orders.FirstOrDefaultAsync(x => x.GoodsId == GoodsId && x.UserId == UserId);
+            if(result != null)
+            {
+                return (result.OrderStatus, true);
+            }
+            return (default,false);
+        }
+
         public async Task<(Order, bool IsSuccess)> AddOrder(Order order)
         {
 

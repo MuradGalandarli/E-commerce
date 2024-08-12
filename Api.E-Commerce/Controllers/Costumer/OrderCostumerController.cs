@@ -95,6 +95,24 @@ namespace Api.E_Commerce.Controllers.Costumer
             }
             return BadRequest();
         }
+        [HttpGet("Ability-To-Track-Order-Status")]
+        public async Task<IActionResult> abilityToTrackOrderStatus(int UserId,int Goods)
+        {
+            var result = await _costumerOrderService.abilityToTrackOrderStatus(Goods, UserId);
+            if (result.Item1 != null && result.Item2 == true)
+            {
+                return Ok(result.Item1);
+            }
+           return NotFound(); 
+        }
+
+
+
+
+
+
+
+
       /*  [HttpPost("BuyGoods")] 
 
         public async Task<IActionResult> Buy([FromBody]BuyGoodsRequest buyGoods)

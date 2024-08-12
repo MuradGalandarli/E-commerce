@@ -9,7 +9,7 @@ namespace EntityCommerce
 {
     public class Goods
     {
-        [Key] 
+        [Key]
         public int GoodsId { get; set; }
         public string? GoodsName { get; set; }
         public int Stock { get; set; }
@@ -25,7 +25,9 @@ namespace EntityCommerce
         public List<Order>? Order { get; set; }
 
         public int SellerId { get; set; }
-
         public Seller? Seller { get; set; }
+
+       public List<Image>? Image { get; set; }
+
     }
 }
