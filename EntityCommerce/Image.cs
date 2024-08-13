@@ -18,5 +18,7 @@ namespace EntityCommerce
         public int? GoodsId { get; set; }    
         public Goods? Goods { get; set; }
         public bool IsDeleted { get; set; } = true;
+
+        //test
     }
 }
