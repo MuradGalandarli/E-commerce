@@ -25,6 +25,7 @@ namespace DataAccess.Commerce.Concrete
 
         public Task<Goods> AddGoods(Goods goods, IFormFile imageFile)
         {
+           
             throw new NotImplementedException();
         }
 

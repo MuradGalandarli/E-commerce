@@ -23,7 +23,7 @@ namespace DataAccess.Commerce.Concrete
 
         }
 
-        public async Task<Image> Upload(Image imageRequest, IFormFile imageFile)
+        public async Task<EntityCommerce.Image> Upload(IFormFile imageFile,int goodsId)
         {
             if (imageFile.FileName.Length <= 0 || imageFile.FileName == null)
             {
@@ -38,10 +38,22 @@ namespace DataAccess.Commerce.Concrete
 
             using (var fileStrim = new FileStream(pathCombine,FileMode.Create))
             {
-                await imageFile.CopyToAsync(fileStrim); 
+                await imageFile.CopyToAsync(fileStrim);
             }
+            EntityCommerce.Image image = new()
+            {
+                OriginalPath = imageFile.FileName,
+                SavedPath = pathCombine,
+                UploadedAt = DateTime.UtcNow,
+                GoodsId = goodsId
+            
+            };
+            _context.Images.Add(image); 
+            await _context.SaveChangesAsync();
+
+
            
-            return null;    
+            return image;    
 
         }
 

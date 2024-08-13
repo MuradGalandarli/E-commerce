@@ -10,6 +10,6 @@ namespace DataAccess.Commerce.Abstract
 {
     public interface IImageDal:IGeneric<Image>
     {
-        public Task<Image> Upload(Image imageRequest, IFormFile formFile);
+        public Task<EntityCommerce.Image> Upload(IFormFile formFile, int goodsId);
     }
 }

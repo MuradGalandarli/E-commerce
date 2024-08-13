@@ -1,6 +1,7 @@
 ﻿using Business.Commerce.Abstract;
 using DataAccess.Commerce.Abstract;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -17,10 +18,10 @@ namespace Business.Commerce.Concret
         {
             this._imageDal = _imageDal;
         }
-
-        public async Task<Image> UploadFile(Image image, IFormFile formFile)
+      
+        public async Task<EntityCommerce.Image> UploadFile(IFormFile formFile, int goodsId)
         {
-           var result = await _imageDal.Upload(image, formFile);
+           var result = await _imageDal.Upload(formFile, goodsId);
             return result;
         }
     }
