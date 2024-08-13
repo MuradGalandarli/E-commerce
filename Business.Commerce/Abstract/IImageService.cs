@@ -11,6 +11,8 @@ namespace Business.Commerce.Abstract
 {
     public interface IImageService
     {
-        public Task<Image> UploadFile (Image image,IFormFile formFile);    
+        public Task<EntityCommerce.Image> UploadFile (IFormFile formFile , int goodsId);
+        public Task<EntityCommerce.Image> DeleteImage(int imageId);
+
     }
 }

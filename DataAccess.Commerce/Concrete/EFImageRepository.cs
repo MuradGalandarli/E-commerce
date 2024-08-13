@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Commerce.Concrete
 {
-    public class EFImageRepository : Generic<Image>, IImageDal
+    public class EFImageRepository : Generic<EntityCommerce.Image>, IImageDal
     {
 
          private readonly ApplicationContext _context;
@@ -23,7 +23,24 @@ namespace DataAccess.Commerce.Concrete
 
         }
 
-        public async Task<Image> Upload(Image imageRequest, IFormFile imageFile)
+        public async Task<EntityCommerce.Image> DeleteImage(int imageId)
+        {
+          var result = await _context.Images.FindAsync(imageId);
+            if (result != null)
+            {
+                result.IsDeleted = false;
+                await _context.SaveChangesAsync();
+                return result;
+            }
+            return null;
+        }
+
+        public Task<EntityCommerce.Image> GetImageFile(int goodsId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<EntityCommerce.Image> Upload(IFormFile imageFile,int goodsId)
         {
             if (imageFile.FileName.Length <= 0 || imageFile.FileName == null)
             {
@@ -38,10 +55,20 @@ namespace DataAccess.Commerce.Concrete
 
             using (var fileStrim = new FileStream(pathCombine,FileMode.Create))
             {
-                await imageFile.CopyToAsync(fileStrim); 
+                await imageFile.CopyToAsync(fileStrim);
             }
-           
-            return null;    
+            EntityCommerce.Image image = new()
+            {
+                OriginalPath = imageFile.FileName,
+                SavedPath = pathCombine,
+                UploadedAt = DateTime.UtcNow,
+                GoodsId = goodsId
+            
+            };
+            _context.Images.Add(image); 
+            await _context.SaveChangesAsync();
+             
+            return image;    
 
         }
 

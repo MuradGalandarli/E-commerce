@@ -2,6 +2,10 @@
 using EntityCommerce;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System.Text.Json.Serialization;
+using System.Text.Json;
+using System;
 
 namespace Api.E_Commerce.Controllers.Admin
 {
@@ -24,7 +28,18 @@ namespace Api.E_Commerce.Controllers.Admin
 
             if (result != null)
             {
-                return Ok(result);
+
+                var options = new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve, 
+                    MaxDepth = 64, 
+                    WriteIndented = true 
+                };
+
+                var jsonString = JsonSerializer.Serialize(result, options);
+
+
+                return Ok(jsonString);
             }
 
             return NotFound();
@@ -63,10 +78,10 @@ namespace Api.E_Commerce.Controllers.Admin
 
         }
 
-        [HttpDelete("DeleteGoods{id}")]
+        [HttpDelete("DeleteGoodsImage{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-          var result = await _goodsService.Delete(id);
+            var result = await _goodsService.Delete(id);
             if (result)
             {
                 return Ok();

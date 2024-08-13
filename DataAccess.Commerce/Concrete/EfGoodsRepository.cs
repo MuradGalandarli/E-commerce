@@ -25,6 +25,7 @@ namespace DataAccess.Commerce.Concrete
 
         public Task<Goods> AddGoods(Goods goods, IFormFile imageFile)
         {
+           
             throw new NotImplementedException();
         }
 
@@ -32,7 +33,7 @@ namespace DataAccess.Commerce.Concrete
 
         public async Task<List<Goods>> getallGoods()
         {
-           var result = await _context.Goodses.Where(x => x.Status == true).ToListAsync();
+           var result = await _context.Goodses.Where(x => x.Status == true).Include(i=>i.Image.Where(d=>d.IsDeleted == true)).ToListAsync();
             return result;
            
         }
@@ -40,6 +41,12 @@ namespace DataAccess.Commerce.Concrete
         public async Task<bool> RemoveGoods(int id)
         {
            var data = await _context.Goodses.FindAsync(id);
+           var result = await _context.Images.Where(x=>x.GoodsId == data.GoodsId).ToListAsync();
+            foreach (var item in result)
+            {
+                item.IsDeleted = false;
+            }
+            
             if (data != null)
             {
                 data.Status = false;
