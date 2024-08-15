@@ -3,6 +3,7 @@ using System;
 using DataAccess.Commerce;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Commerce.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20240814134012_addLikeClass")]
+    partial class addLikeClass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,17 +129,11 @@ namespace DataAccess.Commerce.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("DisLikeCount")
-                        .HasColumnType("integer");
-
                     b.Property<int?>("GoodsId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("LikeCount")
-                        .HasColumnType("integer");
 
                     b.Property<int>("Rating")
                         .HasColumnType("integer");
@@ -239,6 +236,12 @@ namespace DataAccess.Commerce.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LikeId"));
 
                     b.Property<int?>("CommentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("DisLikeCount")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("LikeCount")
                         .HasColumnType("integer");
 
                     b.Property<int>("StatusLike")

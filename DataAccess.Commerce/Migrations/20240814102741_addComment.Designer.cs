@@ -3,6 +3,7 @@ using System;
 using DataAccess.Commerce;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccess.Commerce.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20240814102741_addComment")]
+    partial class addComment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -126,7 +129,7 @@ namespace DataAccess.Commerce.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("DisLikeCount")
+                    b.Property<int>("Dislikes")
                         .HasColumnType("integer");
 
                     b.Property<int?>("GoodsId")
@@ -135,10 +138,13 @@ namespace DataAccess.Commerce.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<int>("LikeCount")
+                    b.Property<int>("Likes")
                         .HasColumnType("integer");
 
                     b.Property<int>("Rating")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StatusLike")
                         .HasColumnType("integer");
 
                     b.Property<int>("UserId")
@@ -228,32 +234,6 @@ namespace DataAccess.Commerce.Migrations
                     b.HasIndex("GoodsId");
 
                     b.ToTable("Images");
-                });
-
-            modelBuilder.Entity("EntityCommerce.Like", b =>
-                {
-                    b.Property<int>("LikeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LikeId"));
-
-                    b.Property<int?>("CommentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("StatusLike")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("LikeId");
-
-                    b.HasIndex("CommentId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Lieks");
                 });
 
             modelBuilder.Entity("EntityCommerce.Order", b =>
@@ -567,21 +547,6 @@ namespace DataAccess.Commerce.Migrations
                     b.Navigation("Goods");
                 });
 
-            modelBuilder.Entity("EntityCommerce.Like", b =>
-                {
-                    b.HasOne("EntityCommerce.Comment", "Comment")
-                        .WithMany("Like")
-                        .HasForeignKey("CommentId");
-
-                    b.HasOne("EntityCommerce.User", "User")
-                        .WithMany("Like")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("Comment");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("EntityCommerce.Order", b =>
                 {
                     b.HasOne("EntityCommerce.Goods", "Goods")
@@ -679,11 +644,6 @@ namespace DataAccess.Commerce.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("EntityCommerce.Comment", b =>
-                {
-                    b.Navigation("Like");
-                });
-
             modelBuilder.Entity("EntityCommerce.Goods", b =>
                 {
                     b.Navigation("Comments");
@@ -701,8 +661,6 @@ namespace DataAccess.Commerce.Migrations
             modelBuilder.Entity("EntityCommerce.User", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("Like");
 
                     b.Navigation("Order");
                 });

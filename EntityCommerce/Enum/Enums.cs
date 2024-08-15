@@ -7,10 +7,10 @@ using System.Threading.Tasks;
 namespace EntityCommerce.Enum
 {
     public class Enums
-    { 
-         public enum OrderEnum
+    {
+        public enum OrderEnum
         {
-       
+
             // Sipariş henüz sepete eklenmemiş
             NotAddedToCart = 1,
 
@@ -41,7 +41,13 @@ namespace EntityCommerce.Enum
             // Ürün stokta yok
             OutOfStock = 10
         }
+
+        public enum likeEnum
+        {
+            Dislike = 0,
+            Like = 1,
+            Neutral = 2
+        }
     }
 
-    }
-
+}

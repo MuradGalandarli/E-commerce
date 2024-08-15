@@ -17,10 +17,10 @@ namespace EntityCommerce
         public string Password { get; set; }
         public string Rol { get; set; }
         public bool Status { get; set; }
-
         public List<Order>? Order { get; set; }
-
+        public List<Comment>Comments { get; set; }
         public string ApplicationUserId { get; set; }
         ApplicationUser ApplicationUser { get; set; }
+        public List<Like>? Like { get; set; }
     }
 }

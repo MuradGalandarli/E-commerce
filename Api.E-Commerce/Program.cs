@@ -59,6 +59,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationContext>()
     .AddDefaultTokenProviders();
 */
+builder.Services.AddScoped<ICostumerCommentService,CostumerCommentManager>();
+builder.Services.AddScoped<ICostumerCommentDal, EFCommentRepositoryCostumer > ();
 builder.Services.AddScoped<ICostumerCategoryDal, EFCategoryRepositoryCostumer>();
 builder.Services.AddScoped<ICostumerGoodsDal,EFGoodsRepositoryCostumer>();
 builder.Services.AddScoped<ICostumerSellerDal, EFSellerRepositoryCostumer>();
