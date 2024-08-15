@@ -68,6 +68,7 @@ builder.Services.AddScoped<ICostumerSellerDal, EFSellerRepositoryCostumer>();
 builder.Services.AddScoped<ICostumerCategorySevice,CostumerCategoryManager>();
 builder.Services.AddScoped<ICostumerGoodsService,CostumerGoodsManager>();
 builder.Services.AddScoped<ICostumerOrderService, CostumerOrderManager>();
+builder.Services.AddScoped<IOrderService, OrderManager>();
 builder.Services.AddScoped<ICostumerSellerService, CostumerSellerManager>();
 builder.Services.AddScoped<ICostumerUserService, CostumerUserManager>();
 
@@ -87,6 +88,7 @@ builder.Services.AddScoped<IGoodsService, GoodsManager>();
 
 builder.Services.AddScoped<IOrderService,OrderManager>();
 builder.Services.AddScoped<ICostumerOrderDal,EFOrderRepositoryCostumer>();
+builder.Services.AddScoped<IOrderDal,EFOrderRepository>();
 
 builder.Services.AddScoped<IUserService, UserManager>();
 builder.Services.AddScoped<ICostumerUserDal, EFUserRepositoryCostumer>();
