@@ -106,7 +106,16 @@ namespace Api.E_Commerce.Controllers.Costumer
            return NotFound(); 
         }
 
-
+        [HttpGet("EnterTheCoupon")]
+        public async Task<IActionResult> EnterTheCoupon(int orderId, string couponCode)
+        {
+           var result = await _costumerOrderService.EnterTheCoupon(orderId, couponCode);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();
+        }
 
 
 

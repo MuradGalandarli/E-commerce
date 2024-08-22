@@ -1,41 +1,6 @@
-﻿/*using EntityCommerce;
-using Microsoft.AspNet.Identity.EntityFramework;
+﻿using EntityCommerce;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Transactions;
-
-namespace DataAccess.Commerce
-{
-    public class ApplicationContext:IdentityDbContext<IdentityUser>
-    {
-        public ApplicationContext(DbContextOptions<ApplicationContext> options):base (options)    
-        {
-            
-        }
-        public DbSet<Category>Categorys { get; set; }
-        public DbSet<Order>Orders { get; set; }
-        public DbSet<Goods>Goodses { get; set; }
-        public DbSet<Seller>Sellers { get; set; }
-        public DbSet<User>Users { get; set; }
-
-
-    }
-}
-*/
-
-
-
-
-using EntityCommerce;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-//using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -48,17 +13,19 @@ namespace DataAccess.Commerce
         {
         }
 
-      
+
         public DbSet<Category> Categories { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<Goods> Goodses { get; set; }
         public DbSet<Seller> Sellers { get; set; }
         public DbSet<User> Users { get; set; }
-        public DbSet<Payment>Patments { get; set; }
+        public DbSet<Payment> Patments { get; set; }
         public DbSet<Image> Images { get; set; }
-        public DbSet<Comment>Comments { get; set; }
-        public DbSet<Like>Lieks { get; set; }
-    
+        public DbSet<Comment> Comments { get; set; }
+        public DbSet<Like> Lieks { get; set; }
+        public DbSet<Campaign> Campaigns { get; set; }
+        public DbSet<CouponGoods> CouponGoods { get; set; }
+        public DbSet<OtherCampaign> OtherCampaigns { get; set; }
 
 
     }

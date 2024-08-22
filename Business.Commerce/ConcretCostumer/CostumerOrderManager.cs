@@ -38,6 +38,12 @@ namespace Business.Commerce.ConcretCostumer
             return result;  
         }
 
+        public async Task<string> EnterTheCoupon(int orderId, string couponCode)
+        {
+           var result = await _costumerOrderDal.EnterTheCoupon(orderId, couponCode);    
+            return result;
+        }
+
         /* public async Task<(Goods, bool IsSuccess)> BuyGoods(BuyGoodsRequest buyGoods)
          {
            var result =await _costumerOrderDal.BuyGoods(buyGoods); 

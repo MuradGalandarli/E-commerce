@@ -31,5 +31,11 @@ namespace EntityCommerce
 
         public List<Comment>? Comments { get; set; }
 
+        public List<Campaign>? Campaigns { get; set; }
+
+        public List<CouponGoods>? CouponGoods { get; set; }
+
+        public List<OtherCampaign>? OtherCampaign { get; set; }
+        
     }
 }

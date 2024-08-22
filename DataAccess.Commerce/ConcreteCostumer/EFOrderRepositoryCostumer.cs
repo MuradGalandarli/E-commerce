@@ -4,12 +4,14 @@ using EntityCommerce;
 using EntityCommerce.Enum;
 using Microsoft.EntityFrameworkCore;
 using Shared.Commerce;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static EntityCommerce.Enum.Enums;
+using static Microsoft.AspNetCore.Razor.Language.TagHelperMetadata;
 
 namespace DataAccess.Commerce.ConcreteCostumer
 {
@@ -84,45 +86,71 @@ namespace DataAccess.Commerce.ConcreteCostumer
 
         }
 
-     /*   public async Task<(Goods, bool IsSuccess)> BuyGoods(BuyGoodsRequest buyGoods)
+        public async Task<string> EnterTheCoupon(int orderId,string couponCode)
         {
-            
-            // _context.Orders.Where(x => x.GoodsId == 5).Include(a=>a.Goodses);
-           // var result = await _context.Goodses.Where(x => x.GoodsId == goodsId).Include(x => x.Order).FirstOrDefaultAsync();
-            var result = await _context.Goodses.Where(x => x.GoodsId == buyGoods.GoodsId).Include(x => x.Order).FirstOrDefaultAsync();
-           
-       
-
-            foreach(var item in result.Order)
+            var checkCoupon = await _context.CouponGoods.AnyAsync
+                (x => x.CouponName == couponCode && x.IsDeleted == true && x.EndDate > DateTime.UtcNow && x.Value > 0);
+            if (checkCoupon)
             {
-                if (result.Stock - 8 >= 0 && item.UserId == buyGoods.UserId)
+
+                var IsSuccess = await _context.Orders.AnyAsync
+                (x => x.OrderStatus != Enums.OrderEnum.Canceled && x.NumberOfGoods > 0);
+                if (IsSuccess)
                 {
-                    item.OrderStatus = Enums.OrderEnum.Purchased;
-                    result.Stock -= 8;
-                    await _context.SaveChangesAsync();
-                    return (result, true);
+                    var data = await _context.CouponGoods.Where
+                        (x => x.CouponName == couponCode && x.IsDeleted == true && x.EndDate > DateTime.UtcNow).FirstOrDefaultAsync();
+                    if (data != null)
+                    {
+                        var result = await _context.Orders.FindAsync(orderId);
+                        result.CouponName = couponCode;
+                        result.CouponId = data.CouponGoodsId;
+                        await _context.SaveChangesAsync();
+                        return result.CouponName;
+                    }
                 }
-                item.OrderStatus = Enums.OrderEnum.OutOfStock;
-                await _context.SaveChangesAsync();
+            }
+            return null;
+        }
 
-            }*/
+        /*   public async Task<(Goods, bool IsSuccess)> BuyGoods(BuyGoodsRequest buyGoods)
+           {
+
+               // _context.Orders.Where(x => x.GoodsId == 5).Include(a=>a.Goodses);
+              // var result = await _context.Goodses.Where(x => x.GoodsId == goodsId).Include(x => x.Order).FirstOrDefaultAsync();
+               var result = await _context.Goodses.Where(x => x.GoodsId == buyGoods.GoodsId).Include(x => x.Order).FirstOrDefaultAsync();
 
 
 
-            /*  if ( await result.Select(x => x.Stock - 8).AnyAsync(x => x >= 0))
-              {
-                  // _context.Orders.Select(x => x.OrderStatus == Enums.OrderEnum.Purchased);
-                   result.Select(x => x.order)
+               foreach(var item in result.Order)
+               {
+                   if (result.Stock - 8 >= 0 && item.UserId == buyGoods.UserId)
+                   {
+                       item.OrderStatus = Enums.OrderEnum.Purchased;
+                       result.Stock -= 8;
+                       await _context.SaveChangesAsync();
+                       return (result, true);
+                   }
+                   item.OrderStatus = Enums.OrderEnum.OutOfStock;
+                   await _context.SaveChangesAsync();
 
-                   result.Select(x=>x.Stock - number);
-                  await _context.SaveChangesAsync();
-                  return (await result.FirstOrDefaultAsync(), true);
-              }
-              _context.Orders.Select(x => x.OrderStatus == Enums.OrderEnum.Purchased);
-              await _context.SaveChangesAsync();*/
+               }*/
 
-          /*  return (result, false);
-        }*/
+
+
+        /*  if ( await result.Select(x => x.Stock - 8).AnyAsync(x => x >= 0))
+          {
+              // _context.Orders.Select(x => x.OrderStatus == Enums.OrderEnum.Purchased);
+               result.Select(x => x.order)
+
+               result.Select(x=>x.Stock - number);
+              await _context.SaveChangesAsync();
+              return (await result.FirstOrDefaultAsync(), true);
+          }
+          _context.Orders.Select(x => x.OrderStatus == Enums.OrderEnum.Purchased);
+          await _context.SaveChangesAsync();*/
+
+        /*  return (result, false);
+      }*/
 
         public async Task<List<Order>> getallOrder()
         {
@@ -141,6 +169,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
             }
             return false;
         }
+         
 
 
 

@@ -28,26 +28,6 @@ var Configuration = builder.Configuration;
 builder.Services.AddDbContext<ApplicationContext>(options =>
 options.UseNpgsql(Configuration.GetConnectionString("WebApiDatabase")));
 
-/*
-var stripeApiKey = builder.Configuration["Stripe:ApiKey"];
-
-builder.Services.AddSingleton<IStripeRepository>(new StripeRepository(stripeApiKey));*/
-/*var stripeSection = builder.Configuration.GetSection("Stripe");
-var secretKey = stripeSection["SecretKey"];
-
-// StripeRepository'yi yapılandırın
-builder.Services.AddSingleton<IStripeRepository>(new StripeRepository(secretKey));
-builder.Services.AddScoped<PaymentService>();
-
-*/
-
-
-/*
-var stripeApiKey = builder.Configuration["Stripe:ApiKey"];
-builder.Services.AddSingleton<IStripeRepository>(sp => new StripeRepository(stripeApiKey));
-builder.Services.AddScoped<PaymentService>();
-*/
-
 
 
 
@@ -78,24 +58,20 @@ builder.Services.AddScoped<ICostumerUserService, CostumerUserManager>();
 
 
 
-
-
+builder.Services.AddScoped<ICampaignService, CampaignManager>();
+builder.Services.AddScoped<ICampaignDal, EFCampaignRepository>();
 builder.Services.AddScoped<IGoodsDal,EfGoodsRepository>();
 builder.Services.AddScoped<IGoodsService, GoodsManager>();
-
-
-
-
 builder.Services.AddScoped<IOrderService,OrderManager>();
 builder.Services.AddScoped<ICostumerOrderDal,EFOrderRepositoryCostumer>();
 builder.Services.AddScoped<IOrderDal,EFOrderRepository>();
-
 builder.Services.AddScoped<IUserService, UserManager>();
 builder.Services.AddScoped<ICostumerUserDal, EFUserRepositoryCostumer>();
-
-
 builder.Services.AddScoped<ISellerDal, EFSellerRepository>();
 builder.Services.AddScoped<ISellerService, SellerManager>();
+builder.Services.AddScoped<ICouponDal, EFCouponRepository>();
+builder.Services.AddScoped<ICouponService, CouponManager>();
+
 
 
 // builder.Services.AddScoped<IEmailService, SmtpEmailService>();
@@ -119,6 +95,9 @@ builder.Services.AddScoped<IAuthService, AuthManager>();
 
 builder.Services.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+builder.Services.AddScoped<IOtherCampaignDal,EFOtherCampaignReposiyory>();
+builder.Services.AddScoped<IOtherCampaignService,OtherCapaignManager>();
 
 builder.Services.AddScoped<ICategoryDal, EFCategoryRepository>();
 builder.Services.AddScoped<ApplicationContext>();

@@ -15,9 +15,9 @@ namespace Business.Commerce.AbstractCostumer
 
         public Task<(Order,bool IsSuccess)>AddOrder(Order order);
         public Task<(Enums.OrderEnum, bool IsSucces)> abilityToTrackOrderStatus(int GoodsId, int UserId);
+        public Task<string> EnterTheCoupon(int orderId, string couponCode);
 
-
-      //  public Task<(Goods, bool IsSuccess)> BuyGoods(BuyGoodsRequest buyGoods);
+        //  public Task<(Goods, bool IsSuccess)> BuyGoods(BuyGoodsRequest buyGoods);
 
     }
 }

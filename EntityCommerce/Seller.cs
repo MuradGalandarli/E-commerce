@@ -15,9 +15,9 @@ namespace EntityCommerce
         public string? Password { get; set; }
         public string? Rol { get; set; }
         public bool Status { get; set; }
-
         public List<Goods>? Goods { get; set; }
         public string ApplicationUserId { get; set; }
         ApplicationUser ApplicationUser { get; set; }
+        public List<Campaign>?   Campaigns { get; set; }
     }
 }
