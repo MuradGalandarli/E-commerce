@@ -59,6 +59,12 @@ namespace Business.Commerce.ConcretCostumer
                await _stripeRepository.PaymentIdUpdate(payment);
                 return payment;
             }
+
+            public async Task<Refund> RefundPaymentAsync(int userId, int goodsId)
+            {
+               var result = await _stripeRepository.RefundPaymentAsync(userId, goodsId);
+                     return result;            
+            }
         }
 
     }

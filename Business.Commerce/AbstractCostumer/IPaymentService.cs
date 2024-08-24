@@ -23,6 +23,7 @@ namespace Business.Commerce.AbstractCostumer
         Task<Payment> AddIdOfPayment(Payment payment);
         Task<Payment> GetByIdPayment(int UserId);
         Task<Payment> PaymentUpdate(Payment payment);
+        public Task<Refund> RefundPaymentAsync(int userId, int goodsId);
 
     }
 }

@@ -48,23 +48,34 @@ namespace Api.E_Commerce.Controllers.Costumer
         }
 
         [HttpPost("Add-Id-Of-Payment")]
-        public async Task<IActionResult> AddIdOfPayment ([FromBody]Payment payment)
+        public async Task<IActionResult> AddIdOfPayment([FromBody] Payment payment)
         {
             await _paymentService.AddIdOfPayment(payment);
             return Ok(payment.UserID);
         }
         [HttpGet("Get-By-Id-Payment")]
-       public async Task<IActionResult> GetByIdPayment(int UserId)
+        public async Task<IActionResult> GetByIdPayment(int UserId)
         {
-           var result = await _paymentService.GetByIdPayment(UserId);
-            return Ok(result);  
+            var result = await _paymentService.GetByIdPayment(UserId);
+            return Ok(result);
         }
         [HttpPut("Update-Payment-Id")]
         public async Task<IActionResult> UpdatePaymentId(Payment payment)
         {
-           var result = await _paymentService.PaymentUpdate(payment);
-            return Ok(result);  
+            var result = await _paymentService.PaymentUpdate(payment);
+            return Ok(result);
         }
+        [HttpGet("RefundPayment")]
+        public async Task<IActionResult> RefundPaymentAsync(int userId, int goodsId)
+         {
+            var result = await _paymentService.RefundPaymentAsync(userId, goodsId);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();
+
+         }
 
     }
 }

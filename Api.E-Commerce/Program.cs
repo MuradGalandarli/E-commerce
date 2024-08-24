@@ -89,6 +89,7 @@ var a = builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSectio
 
 builder.Services.AddScoped<UserManager<ApplicationUser>>();
 builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IEmailDal,EfEmailRepository>();
 builder.Services.AddScoped<IAuthService, AuthManager>();
 
 //builder.Services.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();

@@ -121,19 +121,15 @@ namespace Business.Commerce.Concret
                 return new
                 {
                     PasswordResetToken = new JwtSecurityTokenHandler().WriteToken(token),
-                    PasswordResetTokenExpiry = token.ValidTo.ToString()
-                };
-                
-            }
-            
+                  //  PasswordResetTokenExpiry = token.ValidTo.ToString()
+                };                
+            }       
             return null;
-
         }
-
         public async Task<(bool isSuccess,List<string> Message)> Register(RegisterModel model)
         {
             var message = new List<string>();
-            var userExists = await _userManager.FindByNameAsync(model.Username);
+            var userExists = await _userManager.FindByEmailAsync(model.Email);
             if (userExists != null)
             {
                 message.Add("User already exists!");
@@ -151,13 +147,13 @@ namespace Business.Commerce.Concret
                 message.Add("User creation failed! Please check user details and try again.");
                 return (false, message);
             }
-            // Rolün mevcut olup olmadığını kontrol edin ve yoksa oluşturun
+            
             if (!await _roleManager.RoleExistsAsync(model.Role))
             {
                 await _roleManager.CreateAsync(new IdentityRole(model.Role));
             }
 
-            // Kullanıcıya rolü ekleyin
+            
             if (await _roleManager.RoleExistsAsync(model.Role))
             {
                 await _userManager.AddToRoleAsync(user, model.Role);
@@ -199,9 +195,7 @@ namespace Business.Commerce.Concret
 
             return (false,Message);
 
-           
         }
-
             private JwtSecurityToken GetToken(List<Claim> authClaims)
         {
             var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]));
@@ -215,8 +209,6 @@ namespace Business.Commerce.Concret
                 );
 
             return token;
-        }
-
-      
+        }    
     }
 }
