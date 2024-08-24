@@ -1,8 +1,12 @@
-﻿using DataAccess.Commerce.AbstractCostumer;
+﻿using DataAccess.Commerce.Abstract;
+using DataAccess.Commerce.AbstractCostumer;
 using EntityCommerce;
 using EntityCommerce.Enum;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.VisualBasic;
 using Shared.Commerce;
 using Stripe;
 using System;
@@ -16,15 +20,20 @@ namespace DataAccess.Commerce.ConcreteCostumer
 {
     public class StripeRepository : IStripeRepository
     {
-
+        private readonly IEmailDal _emailDal;
         private readonly StripeClient _stripeClient;
         private readonly ApplicationContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public StripeRepository(IConfiguration configuration, ApplicationContext contetx)
+        public StripeRepository(IConfiguration configuration, ApplicationContext contetx,
+          IEmailDal _emailDal,
+          UserManager<ApplicationUser> _userManager)
         {
             var secretKey = configuration["Stripe:SecretKey"];
             _stripeClient = new StripeClient(secretKey);
             _context = contetx;
+            this._emailDal = _emailDal;
+            this._userManager = _userManager;   
         }
 
 
@@ -76,50 +85,50 @@ namespace DataAccess.Commerce.ConcreteCostumer
                         totalGift += (item.NumberOfGoods / OtherCampaignCount().Item1) * OtherCampaignCount().gift;
 
                     }
-                        int totalNumberOfGoods = item.NumberOfGoods + totalGift;
+                    int totalNumberOfGoods = item.NumberOfGoods + totalGift;
 
-                        if (item.UserId == paymentIntentRequest.UserId && result.Stock - totalNumberOfGoods >= 0 &&
-                            item.OrderStatus != Enums.OrderEnum.OutOfStock)
+                    if (item.UserId == paymentIntentRequest.UserId && result.Stock - totalNumberOfGoods >= 0 &&
+                        item.OrderStatus != Enums.OrderEnum.OutOfStock)
+                    {
+                        var disCountCoupon = await _context.CouponGoods.Where(x => x.CouponName == item.CouponName && x.IsDeleted == true).FirstOrDefaultAsync();
+                        // decimal Campaignresult = 0;
+                        decimal campaignPrezent = 0;
+
+                        if (DisCountCampign().Item2 != 0)
                         {
-                            var disCountCoupon = await _context.CouponGoods.Where(x => x.CouponName == item.CouponName && x.IsDeleted == true).FirstOrDefaultAsync();
-                            // decimal Campaignresult = 0;
-                            decimal campaignPrezent = 0;
 
-                        if ( DisCountCampign().Item2 != 0)
-                            {
+                            campaignPrezent += Prezent(result.Price, DisCountCampign().Item1);
+                        }
 
-                                campaignPrezent += Prezent(result.Price, DisCountCampign().Item1);
-                            }
-
-                            decimal Campaignresult = result.Price - campaignPrezent;
-                            //decimal campaignPrezentResult = 0;
-                            if (item.CouponName != null && disCountCoupon != null)
-                            {
+                        decimal Campaignresult = result.Price - campaignPrezent;
+                        //decimal campaignPrezentResult = 0;
+                        if (item.CouponName != null && disCountCoupon != null)
+                        {
                             campaignPrezent += Prezent(Campaignresult, (int)disCountCoupon.Value);
-                            } 
+                        }
 
 
                         decimal price = (result.Price - campaignPrezent) * item.NumberOfGoods;
 
-                            var options = new PaymentIntentCreateOptions
-                            {
-                                Amount = (long)(price * 100),
-                                Currency = paymentIntentRequest.Currency,
-                                PaymentMethodTypes = new List<string> { "card" }
-                            };
+                        var options = new PaymentIntentCreateOptions
+                        {
+                            Amount = (long)(price * 100),
+                            Currency = paymentIntentRequest.Currency,
+                            PaymentMethodTypes = new List<string> { "card" }
+                        };
 
 
-                            var service = new PaymentIntentService(_stripeClient);
+                        var service = new PaymentIntentService(_stripeClient);
 
-                            item.NumberOfGoods = (byte)totalNumberOfGoods;
-                            item.OrderStatus = Enums.OrderEnum.PaymentPending;
-                            item.CouponDiscountedPrice = price;
-                            item.CampaignId = DisCountCampign().Item2;
-                            item.OtherCampaignId = OtherCampaignCount().id;
-                            await _context.SaveChangesAsync();
-                            return await service.CreateAsync(options);
+                        item.NumberOfGoods = (byte)totalNumberOfGoods;
+                        item.OrderStatus = Enums.OrderEnum.PaymentPending;
+                        item.CouponDiscountedPrice = price;
+                        item.CampaignId = DisCountCampign().Item2;
+                        item.OtherCampaignId = OtherCampaignCount().id;
+                        await _context.SaveChangesAsync();
+                        return await service.CreateAsync(options);
 
-                         }
+                    }
 
                     item.OrderStatus = Enums.OrderEnum.OutOfStock;
                     await _context.SaveChangesAsync();
@@ -212,6 +221,42 @@ namespace DataAccess.Commerce.ConcreteCostumer
             }
             return payment;
         }
+
+
+        public async Task<Refund> RefundPaymentAsync(int userId, int goodsId)
+        {
+            var AppId = await _context.Users.Where(x => x.UserId == userId).Select(x=>x.ApplicationUserId).FirstOrDefaultAsync();
+            var findEmail = await _userManager.FindByIdAsync(AppId);
+
+            var data = await _context.Patments.Where(x => x.UserID == userId).FirstOrDefaultAsync();
+            var result = await _context.Orders.
+                Where(x => x.UserId == userId && x.GoodsId == goodsId && x.OrderStatus == Enums.OrderEnum.PaymentCompleted).FirstOrDefaultAsync();
+            if (result != null)
+            {
+                var refundOptions = new RefundCreateOptions
+
+                {
+
+                    Charge = data.CustomerID,
+                    Amount = (long)(result.CouponDiscountedPrice * 100),
+                };
+
+                var refundService = new RefundService();
+                Refund refund = await refundService.CreateAsync(refundOptions);
+                result.OrderStatus = Enums.OrderEnum.Canceled;
+                await _emailDal.SendEmailAsync(findEmail.Email, "State of affairs", "Your payment will be returned within 2 or 5 business days");
+                await _context.SaveChangesAsync();
+                return refund;
+               
+            }
+            return null;
+        }
+
+
+
+
+
+
 
 
     }
