@@ -18,6 +18,6 @@ namespace EntityCommerce
         public List<Goods>? Goods { get; set; }
         public string ApplicationUserId { get; set; }
         ApplicationUser ApplicationUser { get; set; }
-        public List<Campaign>?   Campaigns { get; set; }
+        public List<Campaign>? Campaigns { get; set; }
     }
 }

@@ -78,7 +78,7 @@ namespace Api.E_Commerce.Controllers.Admin
 
         }
 
-        [HttpDelete("DeleteGoodsImage{id}")]
+        [HttpDelete("DeleteGoodsImageFavorite{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _goodsService.Delete(id);

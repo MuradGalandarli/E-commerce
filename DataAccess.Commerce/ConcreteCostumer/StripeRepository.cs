@@ -234,13 +234,9 @@ namespace DataAccess.Commerce.ConcreteCostumer
             if (result != null)
             {
                 var refundOptions = new RefundCreateOptions
-<<<<<<< HEAD
 
                 {
 
-=======
-                {
->>>>>>> 1b6d68cd49795189c162ca4c19e9a7afc7466407
                     Charge = data.CustomerID,
                     Amount = (long)(result.CouponDiscountedPrice * 100),
                 };

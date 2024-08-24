@@ -42,14 +42,24 @@ namespace DataAccess.Commerce.Concrete
         {
            var data = await _context.Goodses.FindAsync(id);
            var result = await _context.Images.Where(x=>x.GoodsId == data.GoodsId).ToListAsync();
+           var deleteGoodesFavorite = await _context.FavoriteGoods.Where(x=>x.GoodesId == data.GoodsId).ToListAsync();
+
+            foreach (var item in deleteGoodesFavorite)
+            {
+                item.Status = false;
+                await _context.SaveChangesAsync();
+            }
+
             foreach (var item in result)
             {
                 item.IsDeleted = false;
+                await _context.SaveChangesAsync();
             }
             
             if (data != null)
             {
                 data.Status = false;
+               
                 await _context.SaveChangesAsync();
                 return true;
             }

@@ -36,6 +36,8 @@ namespace EntityCommerce
         public List<CouponGoods>? CouponGoods { get; set; }
 
         public List<OtherCampaign>? OtherCampaign { get; set; }
+        public List<FavoriteGoods>? FavoriteGoods { get; set; }  
+        
         
     }
 }

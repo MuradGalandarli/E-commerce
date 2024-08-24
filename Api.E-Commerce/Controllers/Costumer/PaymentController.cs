@@ -65,21 +65,6 @@ namespace Api.E_Commerce.Controllers.Costumer
             var result = await _paymentService.PaymentUpdate(payment);
             return Ok(result);
         }
-<<<<<<< HEAD
-        [HttpPost("RefundPayment")]
-=======
-        [HttpGet("RefundPayment")]
->>>>>>> 1b6d68cd49795189c162ca4c19e9a7afc7466407
-        public async Task<IActionResult> RefundPaymentAsync(int userId, int goodsId)
-         {
-            var result = await _paymentService.RefundPaymentAsync(userId, goodsId);
-            if (result != null)
-            {
-                return Ok(result);
-            }
-            return BadRequest();
-
-         }
 
     }
 }
