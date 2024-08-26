@@ -10,6 +10,6 @@ namespace Business.Commerce.AbstractCostumer
     public interface ICostumerGoodsService:IGenericCostumer<Goods>
     {
         public Task<List<Goods>> searchForGoodsByCategory(string category);
-
+        public List<Goods> SearchGoods(Goods goods);
     }
 }

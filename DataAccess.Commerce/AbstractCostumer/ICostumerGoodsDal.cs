@@ -10,6 +10,7 @@ namespace DataAccess.Commerce.AbstractCostumer
     public interface ICostumerGoodsDal:ICostumerGenericDal<Goods>
     {
         public Task<List<Goods>> searchForGoodsByCategory(string category);
+        public List<Goods> SearchGoods(Goods goods);
 
     }
 }

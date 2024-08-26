@@ -29,5 +29,11 @@ namespace Business.Commerce.ConcretCostumer
             var result = await _costumerGoodsyDal.searchForGoodsByCategory(category);
             return result;
         }
+
+        public List<Goods> SearchGoods(Goods goods)
+        {
+            var result =  _costumerGoodsyDal.SearchGoods(goods);
+            return result;
+        }
     }
 }

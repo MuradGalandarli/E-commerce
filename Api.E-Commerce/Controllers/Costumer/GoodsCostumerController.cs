@@ -1,4 +1,5 @@
 ﻿using Business.Commerce.AbstractCostumer;
+using EntityCommerce;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,7 +33,18 @@ namespace Api.E_Commerce.Controllers.Costumer
                 return Ok(result);
             }
             return BadRequest();
-
         }
+
+        [HttpPost ("SearchGoods")]
+        public IActionResult SearchGodds([FromBody]Goods goods)
+        {
+            var result =  _costumerGoodsService.SearchGoods(goods);
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();    
+        }
+
     }
 }

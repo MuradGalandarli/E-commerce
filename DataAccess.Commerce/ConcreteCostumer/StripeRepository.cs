@@ -91,24 +91,24 @@ namespace DataAccess.Commerce.ConcreteCostumer
                         item.OrderStatus != Enums.OrderEnum.OutOfStock)
                     {
                         var disCountCoupon = await _context.CouponGoods.Where(x => x.CouponName == item.CouponName && x.IsDeleted == true).FirstOrDefaultAsync();
-                        // decimal Campaignresult = 0;
+                       
                         decimal campaignPrezent = 0;
 
                         if (DisCountCampign().Item2 != 0)
                         {
 
-                            campaignPrezent += Prezent(result.Price, DisCountCampign().Item1);
+                            campaignPrezent += Prezent((int)result.Price, DisCountCampign().Item1);
                         }
 
-                        decimal Campaignresult = result.Price - campaignPrezent;
-                        //decimal campaignPrezentResult = 0;
+                        decimal Campaignresult = (int)result.Price - campaignPrezent;
+                       
                         if (item.CouponName != null && disCountCoupon != null)
                         {
                             campaignPrezent += Prezent(Campaignresult, (int)disCountCoupon.Value);
                         }
 
 
-                        decimal price = (result.Price - campaignPrezent) * item.NumberOfGoods;
+                        decimal price = ((int)result.Price - campaignPrezent) * item.NumberOfGoods;
 
                         var options = new PaymentIntentCreateOptions
                         {
