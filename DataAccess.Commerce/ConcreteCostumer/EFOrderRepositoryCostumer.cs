@@ -93,6 +93,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
             if (checkCoupon)
             {
 
+
                 var IsSuccess = await _context.Orders.AnyAsync
                 (x => x.OrderStatus != Enums.OrderEnum.Canceled && x.NumberOfGoods > 0);
                 if (IsSuccess)

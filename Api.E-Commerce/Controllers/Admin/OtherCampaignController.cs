@@ -25,7 +25,7 @@ namespace Api.E_Commerce.Controllers.Admin
             return BadRequest();
         }
         [HttpPost("AddOtherCampaignOther")]
-        public async Task<IActionResult> AddCampaign(OtherCampaign otherComparer)
+        public async Task<IActionResult> AddOtherCampaign(OtherCampaign otherComparer)
         {
             var result = await _therCampaignService.Add(otherComparer);
             if (result != null)

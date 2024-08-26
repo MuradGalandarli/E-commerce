@@ -3,6 +3,7 @@ using EntityCommerce;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 
 namespace Api.E_Commerce.Controllers.Admin
 {
@@ -30,11 +31,20 @@ namespace Api.E_Commerce.Controllers.Admin
         }
         [HttpPost("AddCampaign")]
         public async Task<IActionResult> AddCampaign(Campaign comparer)
-        {
+         {
             var result = await _campaignService.Add(comparer);
-            if (result != null)
+
+            var options = new JsonSerializerOptions
             {
-                return Ok(result);
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve,
+                WriteIndented = true 
+            };
+
+            var json = JsonSerializer.Serialize(result, options);
+
+            if (json != null)
+            {
+                return Ok(json);
             }
             return BadRequest();
         }

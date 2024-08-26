@@ -1,5 +1,7 @@
 ﻿using DataAccess.Commerce.Abstract;
 using EntityCommerce;
+using EntityCommerce.Enum;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Stripe;
 using System;
@@ -14,9 +16,15 @@ namespace DataAccess.Commerce.Concrete
     public class EFCampaignRepository : ICampaignDal
     {
         private readonly ApplicationContext _context;
-        public EFCampaignRepository(ApplicationContext _context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IEmailDal _emailDal;
+        public EFCampaignRepository(ApplicationContext _context,
+            UserManager<ApplicationUser> _userManager,
+             IEmailDal _emailDal)
         {
             this._context = _context;
+            this._userManager = _userManager;
+            this._emailDal = _emailDal;
         }
         public async Task<Campaign> AddCampaign(Campaign campaign)
         {
@@ -28,6 +36,21 @@ namespace DataAccess.Commerce.Concrete
                     var checkCampaign = await _context.Campaigns.AnyAsync(x => x.SellerId == campaign.SellerId && x.GoodsId == campaign.GoodsId && x.IsDeleted == true);
                     if (!checkCampaign)
                     {
+                        var goodsData = await _context.Goodses.Where(x => x.GoodsId == campaign.GoodsId).FirstOrDefaultAsync();
+
+                        var userIdList = await _context.Orders.Where
+                            (x => x.GoodsId == campaign.GoodsId && x.OrderStatus == Enums.OrderEnum.AddedToCart).
+                            Select(x => x.UserId).ToListAsync();
+
+                        var appUserId = await _context.Users.Where(x => userIdList.Contains(x.UserId)).
+                            Select(x => new { x.ApplicationUserId ,x.UserName }).ToListAsync();
+
+                        foreach (var item in appUserId)
+                        {
+                            var data = await _userManager.FindByIdAsync(item.ApplicationUserId);
+                           await _emailDal.SendEmailAsync(data.Email, "Hello " + item.UserName, "The " + goodsData.GoodsName +" cost "+campaign.DiscountRate + " for 100");
+                        }
+
                         await _context.Campaigns.AddAsync(campaign);
                         await _context.SaveChangesAsync();
                         return campaign;
