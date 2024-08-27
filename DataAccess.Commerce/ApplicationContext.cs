@@ -27,7 +27,8 @@ namespace DataAccess.Commerce
         public DbSet<CouponGoods> CouponGoods { get; set; }
         public DbSet<OtherCampaign> OtherCampaigns { get; set; }
         public DbSet<FavoriteGoods>FavoriteGoods { get; set; }  
-
+        public DbSet<Question>Questions { get; set; }
+        public DbSet<Answer> Answers { get; set; }
 
     }
 

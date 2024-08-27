@@ -23,6 +23,7 @@ namespace EntityCommerce
         ApplicationUser ApplicationUser { get; set; }
         public List<Like>? Like { get; set; }
         public List<FavoriteGoods>? FavoriteGoods { get; set; }
-
+        public List<Question>? Question { get; set; }
+        public List<Answer>? Answer { get; set; }
     }
 }

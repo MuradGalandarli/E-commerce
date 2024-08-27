@@ -9,10 +9,10 @@ using System.Threading.Tasks;
 
 namespace DataAccess.Commerce.ConcreteCostumer
 {
-    public class EFFavoriteGoodsRepozitoryCostumer : IFavoriteGoodsDal
+    public class EFFavoriteGoodsRepositoryCostumer : IFavoriteGoodsDal
     {
         private readonly ApplicationContext _context;
-        public EFFavoriteGoodsRepozitoryCostumer(ApplicationContext _context)
+        public EFFavoriteGoodsRepositoryCostumer(ApplicationContext _context)
         {
             this._context = _context;
         }

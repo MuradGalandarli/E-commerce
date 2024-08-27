@@ -51,8 +51,14 @@ builder.Services.AddScoped<ICostumerOrderService, CostumerOrderManager>();
 builder.Services.AddScoped<IOrderService, OrderManager>();
 builder.Services.AddScoped<ICostumerSellerService, CostumerSellerManager>();
 builder.Services.AddScoped<ICostumerUserService, CostumerUserManager>();
-builder.Services.AddScoped<IFavoriteGoodsDal, EFFavoriteGoodsRepozitoryCostumer>();
+builder.Services.AddScoped<IFavoriteGoodsDal, EFFavoriteGoodsRepositoryCostumer>();
 builder.Services.AddScoped<ICostumerFavoriteGoodsService, CostumeFavoriteGoodsManager>();
+builder.Services.AddScoped<ICostumerAnswerDal, EFAnswerRepositoryCostumer>();
+builder.Services.AddScoped<ICostumerAnswerService, CostumerAnswerManager>();
+builder.Services.AddScoped<ICostumerQuestionDal, EFQuestionRepositoryCostumer>();
+builder.Services.AddScoped<ICostumerQuestionService, CostumerQuestionManager>();
+
+
 
 
 
