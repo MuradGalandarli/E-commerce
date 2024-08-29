@@ -1,4 +1,5 @@
 ﻿using EntityCommerce;
+using EntityCommerce.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,5 +15,7 @@ namespace DataAccess.Commerce.AbstractCostumer
         public Task<Question> GetQuestion(int id);
         public Task<List<Question>> GetAllListQuestion();
         public Task<Question> UpdateQuestion(Question question);
+        public Task<Enums.likeEnum> QuestionLikeOrDisLike(QuestionLike questionLike);
+
     }
 }

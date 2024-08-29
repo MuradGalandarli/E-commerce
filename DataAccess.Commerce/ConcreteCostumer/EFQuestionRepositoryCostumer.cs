@@ -1,5 +1,6 @@
 ﻿using DataAccess.Commerce.AbstractCostumer;
 using EntityCommerce;
+using EntityCommerce.Enum;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -59,6 +60,89 @@ namespace DataAccess.Commerce.ConcreteCostumer
                 return result;
             }
             return null;
+        }
+
+        public async Task<Enums.likeEnum> QuestionLikeOrDisLike(QuestionLike questionLike)
+        {
+            var checkUser = await _context.Users.AnyAsync(x => x.UserId == questionLike.UserId && x.Status == true);
+            if (checkUser)
+            {
+                var questionData = await _context.Questions.FirstOrDefaultAsync(x => x.QuestionId == questionLike.QuestionId && x.Status == true);
+                if (questionData != null)
+                {
+                    var result = await _context.QuestionLikes.FirstOrDefaultAsync(x => x.UserId == questionLike.UserId && x.QuestionId == questionLike.QuestionId);
+                    if (result == null)
+                    {
+                        var create = await _context.QuestionLikes.AddAsync(questionLike);
+                        //     questionLike.LikeStatus = Enums.likeEnum.Neutral;
+                        await _context.SaveChangesAsync();
+                    }
+                    var changeLikeStatus = await _context.QuestionLikes.FirstOrDefaultAsync(x => x.UserId == questionLike.UserId && x.QuestionId == questionLike.QuestionId);
+
+
+                    switch (questionLike.LikeOrDisLike)
+                    {
+                        case Enums.likeEnum.Like:
+                            if (changeLikeStatus.LikeStatus == Enums.likeEnum.Neutral)
+                            {
+                                questionData.Like += 1;
+                                changeLikeStatus.LikeStatus = Enums.likeEnum.Like;
+                                await _context.SaveChangesAsync();
+                                return Enums.likeEnum.Like;
+                            }
+                            if (changeLikeStatus.LikeStatus == Enums.likeEnum.Dislike)
+                            {
+                                questionData.DisLike -= 1;
+                                questionData.Like += 1;
+                                changeLikeStatus.LikeStatus = Enums.likeEnum.Like;
+                                await _context.SaveChangesAsync();
+                                return Enums.likeEnum.Like;
+                            }
+                            break;
+
+                        case Enums.likeEnum.Dislike:
+                            if (changeLikeStatus.LikeStatus == Enums.likeEnum.Like)
+                            {
+                                questionData.Like -= 1;
+                                questionData.DisLike += 1;
+                                changeLikeStatus.LikeStatus = Enums.likeEnum.Dislike;
+                                await _context.SaveChangesAsync();
+                                return Enums.likeEnum.Dislike;
+                            }
+
+
+                            if (changeLikeStatus.LikeStatus == Enums.likeEnum.Neutral)
+                            {
+                                questionData.DisLike += 1;
+                                changeLikeStatus.LikeStatus = Enums.likeEnum.Dislike;
+                                await _context.SaveChangesAsync();
+                                return Enums.likeEnum.Dislike;
+                            }
+
+                            break;
+
+                        case Enums.likeEnum.Neutral:
+                            if (changeLikeStatus.LikeStatus == Enums.likeEnum.Like)
+                            {
+                                questionData.Like -= 1;
+                                changeLikeStatus.LikeStatus = Enums.likeEnum.Neutral;
+                                await _context.SaveChangesAsync();
+                                return Enums.likeEnum.Like;
+                            }
+                            if (changeLikeStatus.LikeStatus == Enums.likeEnum.Dislike)
+                            {
+                                questionData.DisLike -= 1;
+                                changeLikeStatus.LikeStatus = Enums.likeEnum.Neutral;
+                                await _context.SaveChangesAsync();
+                                return Enums.likeEnum.Dislike;
+                            }
+
+                            break;
+                    }
+                }
+            }
+            return default;
+
         }
 
         public async Task<Question> UpdateQuestion(Question question)
