@@ -1,5 +1,6 @@
 ﻿using Business.Commerce.Abstract;
 using EntityCommerce;
+using EntityCommerce.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,7 @@ namespace Business.Commerce.AbstractCostumer
 {
     public interface ICostumerAnswerService:IGenericService<Answer>
     {
+        public Task<Enums.likeEnum> AnswerLikeOrDisLike(AnswerLike answerLike);
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Business.Commerce.AbstractCostumer;
 using DataAccess.Commerce.AbstractCostumer;
 using EntityCommerce;
+using EntityCommerce.Enum;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,12 @@ namespace Business.Commerce.ConcretCostumer
         public async Task<Answer> Add(Answer t)
         {
             var result = await _answerDal.AddAnswer(t);
+            return result;
+        }
+
+        public Task<Enums.likeEnum> AnswerLikeOrDisLike(AnswerLike answerLike)
+        {
+            var result = _answerDal.AnswerLikeOrDisLike(answerLike);
             return result;
         }
 

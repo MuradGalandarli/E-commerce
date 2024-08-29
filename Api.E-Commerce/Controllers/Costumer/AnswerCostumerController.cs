@@ -7,11 +7,11 @@ namespace Api.E_Commerce.Controllers.Costumer
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AnswerController : ControllerBase
+    public class AnswerCostumerController : ControllerBase
     {
         private readonly ICostumerAnswerService _answerService;
 
-        public AnswerController(ICostumerAnswerService _answerService)
+        public AnswerCostumerController(ICostumerAnswerService _answerService)
         {
             this._answerService = _answerService;
         }
@@ -71,7 +71,13 @@ namespace Api.E_Commerce.Controllers.Costumer
             }
             return BadRequest();
         }
+        [HttpPost("AnswerLikeOrDisLike")]
+        public async Task<IActionResult> AnswerLikeOrDisLike(AnswerLike answerLike)
+        {
+            var result = await _answerService.AnswerLikeOrDisLike(answerLike);
+            return Ok(result);
 
+        }
 
 
     }
