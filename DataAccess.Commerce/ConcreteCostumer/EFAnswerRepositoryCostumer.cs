@@ -24,13 +24,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
         }
         public async Task<Answer> AddAnswer(Answer answer)
         {
-<<<<<<< Updated upstream
-            var checkUser = await _context.Users.AnyAsync(x => x.UserId == answer.UserId && x.Status == true);
-            var checkQuestion = await _context.Questions.AnyAsync(x => x.Status == true);
-            if (checkQuestion && checkUser)
-=======
             try
->>>>>>> Stashed changes
             {
                 var checkUser = await _context.Users.AnyAsync(x => x.UserId == answer.UserId && x.Status == true);
                 var checkQuestion = await _context.Questions.AnyAsync(x => x.Status == true);
@@ -50,12 +44,8 @@ namespace DataAccess.Commerce.ConcreteCostumer
 
         public async Task<bool> DeleteAnswer(int id)
         {
-<<<<<<< Updated upstream
-            var result = await GetAnswer(id);
-            if (result != null)
-=======
+
             try
->>>>>>> Stashed changes
             {
                 var result = await GetAnswer(id);
                 if (result != null)
@@ -74,12 +64,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
 
         public async Task<List<Answer>> GetAllListAnswer()
         {
-<<<<<<< Updated upstream
-            var result = await _context.Answers.Where(x => x.Status == true).ToListAsync();
-            if (result != null)
-=======
             try
->>>>>>> Stashed changes
             {
                 var result = await _context.Answers.Where(x => x.Status == true).ToListAsync();
                 if (result != null)
@@ -96,12 +81,8 @@ namespace DataAccess.Commerce.ConcreteCostumer
 
         public async Task<Answer> GetAnswer(int id)
         {
-<<<<<<< Updated upstream
-            var result = await _context.Answers.FirstOrDefaultAsync(x => x.AnswerId == id && x.Status == true);
-            if (result != null)
-=======
+        
             try
->>>>>>> Stashed changes
             {
                 var result = await _context.Answers.FirstOrDefaultAsync(x => x.AnswerId == id && x.Status == true);
                 if (result != null)
@@ -122,14 +103,6 @@ namespace DataAccess.Commerce.ConcreteCostumer
         {
             try
             {
-<<<<<<< Updated upstream
-                result.AnswerDate = answer.AnswerDate;
-                result.Status = answer.Status;
-                result.AnswerText = answer.AnswerText;
-
-                await _context.SaveChangesAsync();
-                return result;
-=======
                 var result = await this.GetAnswer(answer.AnswerId);
                 if (result != null)
                 {
@@ -144,7 +117,6 @@ namespace DataAccess.Commerce.ConcreteCostumer
             catch(Exception ex)
             {
                 _logger.LogError(ex.ToString());
->>>>>>> Stashed changes
             }
             return null;
         }
