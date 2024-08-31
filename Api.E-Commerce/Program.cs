@@ -19,6 +19,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Asn1.X509.Qualified;
+using Serilog;
 using Shared.Commerce;
 using System.Text;
 using static Business.Commerce.ConcretCostumer.PaymentManager;
@@ -33,12 +34,6 @@ options.UseNpgsql(Configuration.GetConnectionString("WebApiDatabase")));
 
 builder.Services.AddScoped<IPaymentService,PaymentService>();
 builder.Services.AddScoped<IStripeRepository,StripeRepository>();
-
-/*
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<ApplicationContext>()
-    .AddDefaultTokenProviders();
-*/
 builder.Services.AddScoped<ICostumerCommentService,CostumerCommentManager>();
 builder.Services.AddScoped<ICostumerCommentDal, EFCommentRepositoryCostumer > ();
 builder.Services.AddScoped<ICostumerCategoryDal, EFCategoryRepositoryCostumer>();
@@ -58,13 +53,6 @@ builder.Services.AddScoped<ICostumerAnswerService, CostumerAnswerManager>();
 builder.Services.AddScoped<ICostumerQuestionDal, EFQuestionRepositoryCostumer>();
 builder.Services.AddScoped<ICostumerQuestionService, CostumerQuestionManager>();
 
-
-
-
-
-
-
-
 builder.Services.AddScoped<ICampaignService, CampaignManager>();
 builder.Services.AddScoped<ICampaignDal, EFCampaignRepository>();
 builder.Services.AddScoped<IGoodsDal,EfGoodsRepository>();
@@ -79,6 +67,21 @@ builder.Services.AddScoped<ISellerService, SellerManager>();
 builder.Services.AddScoped<ICouponDal, EFCouponRepository>();
 builder.Services.AddScoped<ICouponService, CouponManager>();
 
+builder.Services.AddScoped<UserManager<ApplicationUser>>();
+builder.Services.AddScoped<IEmailService, SmtpEmailService>();
+builder.Services.AddScoped<IEmailDal, EfEmailRepository>();
+builder.Services.AddScoped<IAuthService, AuthManager>();
+builder.Services.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+builder.Services.AddScoped<IOtherCampaignDal, EFOtherCampaignReposiyory>();
+builder.Services.AddScoped<IOtherCampaignService, OtherCapaignManager>();
+builder.Services.AddScoped<ICategoryDal, EFCategoryRepository>();
+builder.Services.AddScoped<ApplicationContext>();
+builder.Services.AddScoped<ICategoryService, CategoryManager>();
+builder.Services.AddScoped<IImageService, ImageManager>();
+builder.Services.AddScoped<IImageDal, EFImageRepository>();
+builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
 
 
 // builder.Services.AddScoped<IEmailService, SmtpEmailService>();
@@ -90,33 +93,15 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 
-//builder.Services.AddScoped<SignInManager<ApplicationUser>>();
-
-var a = builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
-
-builder.Services.AddScoped<UserManager<ApplicationUser>>();
-builder.Services.AddScoped<IEmailService, SmtpEmailService>();
-builder.Services.AddScoped<IEmailDal,EfEmailRepository>();
- // builder.Services.AddScoped<IEmailDal, EfEmailRepository>();
-builder.Services.AddScoped<IAuthService, AuthManager>();
-
-//builder.Services.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
-
-builder.Services.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
-builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-
-builder.Services.AddScoped<IOtherCampaignDal,EFOtherCampaignReposiyory>();
-builder.Services.AddScoped<IOtherCampaignService,OtherCapaignManager>();
-
-builder.Services.AddScoped<ICategoryDal, EFCategoryRepository>();
-builder.Services.AddScoped<ApplicationContext>();
-builder.Services.AddScoped<ICategoryService, CategoryManager>();
-
-builder.Services.AddScoped<IImageService,ImageManager>();
-builder.Services.AddScoped<IImageDal,EFImageRepository>();
+Log.Logger = new LoggerConfiguration()
+    .Enrich.FromLogContext()
+    .MinimumLevel.Override("Microsoft", Serilog.Events.LogEventLevel.Warning)
+    .WriteTo.File(@"D:\File\Log\Log.txt", rollingInterval: RollingInterval.Day).MinimumLevel.Information()
+    .CreateLogger();
+    builder.Host.UseSerilog();
 
 
-builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddScoped<IUrlHelper>(provider =>
 {
     var actionContext = provider.GetRequiredService<IActionContextAccessor>().ActionContext;
@@ -133,7 +118,6 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 
-// Adding Jwt Bearer
 .AddJwtBearer(options =>
 {
     options.SaveToken = true;
@@ -163,6 +147,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 

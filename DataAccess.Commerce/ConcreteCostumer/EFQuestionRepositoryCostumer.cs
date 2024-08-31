@@ -2,6 +2,7 @@
 using EntityCommerce;
 using EntityCommerce.Enum;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,53 +12,84 @@ using System.Threading.Tasks;
 namespace DataAccess.Commerce.ConcreteCostumer
 {
     public class EFQuestionRepositoryCostumer : ICostumerQuestionDal
-    {private readonly ApplicationContext _context;
-        public EFQuestionRepositoryCostumer(ApplicationContext _context)
+    {
+        private readonly ApplicationContext _context;
+        private readonly ILogger<EFQuestionRepositoryCostumer> _logger;
+        public EFQuestionRepositoryCostumer(ApplicationContext _context
+            , ILogger<EFQuestionRepositoryCostumer> logger)
         {
             this._context = _context;
+            _logger = logger;
         }
         public async Task<Question> AddQuestion(Question question)
         {
             var checkUser = await _context.Users.AnyAsync(x => x.UserId == question.UserId && x.Status == true);
-           
-            if (checkUser)
+            try
             {
-                _context.Questions.Add(question);
-                await _context.SaveChangesAsync();
-                return question;
+                if (checkUser)
+                {
+                    _context.Questions.Add(question);
+                    await _context.SaveChangesAsync();
+                    return question;
+                }
             }
+            catch (Exception ex) 
+            {
+                _logger.LogError(ex.ToString());
+            }
+
             return null;
         }
 
         public async Task<bool> DeleteQuestion(int id)
         {
-
-            var result = await this.GetQuestion(id);
-            if (result != null)
+            try
             {
-                result.Status = false;
-                await _context.SaveChangesAsync();
-                return true;
+                var result = await this.GetQuestion(id);
+                if (result != null)
+                {
+                    result.Status = false;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return false;
         }
 
         public async Task<List<Question>> GetAllListQuestion()
         {
-            var result = await _context.Questions.Where(x => x.Status == true).ToListAsync();
-            if (result != null)
+            try
             {
-                return result;
+                var result = await _context.Questions.Where(x => x.Status == true).ToListAsync();
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            catch (Exception ex) 
+            { 
+            _logger.LogError(ex.ToString());
             }
             return null;
         }
 
         public async Task<Question> GetQuestion(int id)
         {
-            var result = await _context.Questions.FirstOrDefaultAsync(x => x.QuestionId == id && x.Status == true);
-            if (result != null)
+            try
             {
-                return result;
+                var result = await _context.Questions.FirstOrDefaultAsync(x => x.QuestionId == id && x.Status == true);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            catch(Exception ex)
+            { 
+                _logger.LogError(ex.ToString());
             }
             return null;
         }
@@ -147,16 +179,24 @@ namespace DataAccess.Commerce.ConcreteCostumer
 
         public async Task<Question> UpdateQuestion(Question question)
         {
-            var result = await this.GetQuestion(question.QuestionId);
-            if (result != null)
+            try
             {
-                result.QuestionDate = question.QuestionDate;
-                result.Status = question.Status;
-                result.QuestionText = question.QuestionText;
+                var result = await this.GetQuestion(question.QuestionId);
+                if (result != null)
+                {
+                    result.QuestionDate = question.QuestionDate;
+                    result.Status = question.Status;
+                    result.QuestionText = question.QuestionText;
 
-                await _context.SaveChangesAsync();
-                return result;
+                    await _context.SaveChangesAsync();
+                    return result;
+                }
             }
+            catch(Exception ex)
+            {
+                  _logger.LogError(ex.ToString());
+            }
+
             return null;
         }
     }

@@ -3,6 +3,7 @@ using DataAccess.Commerce.Concrete;
 using EntityCommerce;
 using EntityCommerce.Enum;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Shared.Commerce;
 using Stripe;
 using System;
@@ -18,60 +19,68 @@ namespace DataAccess.Commerce.ConcreteCostumer
     public class EFOrderRepositoryCostumer : Generic<Order>, ICostumerOrderDal
     {
         private readonly ApplicationContext _context;
-        public EFOrderRepositoryCostumer(ApplicationContext context) : base(context)
+        private readonly ILogger<EFOrderRepositoryCostumer> _logger;
+        public EFOrderRepositoryCostumer(ApplicationContext context
+            , ILogger<EFOrderRepositoryCostumer> _logger) : base(context,_logger)
         {
             _context = context;
+            this._logger = _logger;
         }
 
         public async Task<(OrderEnum, bool IsSucces)> abilityToTrackOrderStatus(int GoodsId, int UserId)
         {
-            var result = await _context.Orders.FirstOrDefaultAsync(x => x.GoodsId == GoodsId && x.UserId == UserId);
-            if(result != null)
+            try
             {
-                return (result.OrderStatus, true);
+                var result = await _context.Orders.FirstOrDefaultAsync(x => x.GoodsId == GoodsId && x.UserId == UserId);
+                if (result != null)
+                {
+                    return (result.OrderStatus, true);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
             }
             return (default,false);
         }
 
         public async Task<(Order, bool IsSuccess)> AddOrder(Order order)
         {
-
-            var resultList = await _context.Orders.Where(x => x.UserId == order.UserId).ToListAsync();
-
-
-            int saygac = 0;
-            foreach (var item in resultList)
+            try
             {
-                if (item.GoodsId == order.GoodsId)
+                var resultList = await _context.Orders.Where(x => x.UserId == order.UserId).ToListAsync();
+
+
+                int saygac = 0;
+                foreach (var item in resultList)
                 {
-                    saygac++;
-                    break;
+                    if (item.GoodsId == order.GoodsId)
+                    {
+                        saygac++;
+                        break;
+                    }
+
                 }
-
+                if (saygac <= 0)
+                {
+                    order.OrderStatus = Enums.OrderEnum.AddedToCart;
+                    await _context.Orders.AddAsync(order);
+                    await _context.SaveChangesAsync();
+                    return (order, true);
+                }
             }
-            if (saygac <= 0)
+            catch (Exception ex)
             {
-                order.OrderStatus = Enums.OrderEnum.AddedToCart;
-                await _context.Orders.AddAsync(order);
-                await _context.SaveChangesAsync();
-                return (order, true);
+                _logger.LogError($"{ex.Message}");
             }
-
-
 
             return (order, false);
         }
 
         public async Task<Enums.OrderEnum> addToBasket(int id,int number)
         {
-            /*
-                        var result = await _context.Orders.Where(x => x.GoodsId == id).ToListAsync();
-                        foreach (var order in result)
-                        {
-                            order.OrderStatus = Enums.OrderEnum.AddedToCart;
-                        }*/
-
-
+            try 
+            {
             var result = await _context.Goodses.Where(x => x.GoodsId == id).Include(a=>a.Order).FirstOrDefaultAsync();
             if (result.Stock - number >= 0)
             {
@@ -85,94 +94,80 @@ namespace DataAccess.Commerce.ConcreteCostumer
             return Enums.OrderEnum.OutOfStock;
 
         }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
+            return default;
+            }
 
         public async Task<string> EnterTheCoupon(int orderId,string couponCode)
         {
-            var checkCoupon = await _context.CouponGoods.AnyAsync
-                (x => x.CouponName == couponCode && x.IsDeleted == true && x.EndDate > DateTime.UtcNow && x.Value > 0);
-            if (checkCoupon)
+            try
             {
-
-
-                var IsSuccess = await _context.Orders.AnyAsync
-                (x => x.OrderStatus != Enums.OrderEnum.Canceled && x.NumberOfGoods > 0);
-                if (IsSuccess)
+                var checkCoupon = await _context.CouponGoods.AnyAsync
+                    (x => x.CouponName == couponCode && x.IsDeleted == true && x.EndDate > DateTime.UtcNow && x.Value > 0);
+                if (checkCoupon)
                 {
-                    var data = await _context.CouponGoods.Where
-                        (x => x.CouponName == couponCode && x.IsDeleted == true && x.EndDate > DateTime.UtcNow).FirstOrDefaultAsync();
-                    if (data != null)
+
+
+                    var IsSuccess = await _context.Orders.AnyAsync
+                    (x => x.OrderStatus != Enums.OrderEnum.Canceled && x.NumberOfGoods > 0);
+                    if (IsSuccess)
                     {
-                        var result = await _context.Orders.FindAsync(orderId);
-                        result.CouponName = couponCode;
-                        result.CouponId = data.CouponGoodsId;
-                        await _context.SaveChangesAsync();
-                        return result.CouponName;
+                        var data = await _context.CouponGoods.Where
+                            (x => x.CouponName == couponCode && x.IsDeleted == true && x.EndDate > DateTime.UtcNow).FirstOrDefaultAsync();
+                        if (data != null)
+                        {
+                            var result = await _context.Orders.FindAsync(orderId);
+                            result.CouponName = couponCode;
+                            result.CouponId = data.CouponGoodsId;
+                            await _context.SaveChangesAsync();
+                            return result.CouponName;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return null;
         }
 
-        /*   public async Task<(Goods, bool IsSuccess)> BuyGoods(BuyGoodsRequest buyGoods)
-           {
-
-               // _context.Orders.Where(x => x.GoodsId == 5).Include(a=>a.Goodses);
-              // var result = await _context.Goodses.Where(x => x.GoodsId == goodsId).Include(x => x.Order).FirstOrDefaultAsync();
-               var result = await _context.Goodses.Where(x => x.GoodsId == buyGoods.GoodsId).Include(x => x.Order).FirstOrDefaultAsync();
-
-
-
-               foreach(var item in result.Order)
-               {
-                   if (result.Stock - 8 >= 0 && item.UserId == buyGoods.UserId)
-                   {
-                       item.OrderStatus = Enums.OrderEnum.Purchased;
-                       result.Stock -= 8;
-                       await _context.SaveChangesAsync();
-                       return (result, true);
-                   }
-                   item.OrderStatus = Enums.OrderEnum.OutOfStock;
-                   await _context.SaveChangesAsync();
-
-               }*/
-
-
-
-        /*  if ( await result.Select(x => x.Stock - 8).AnyAsync(x => x >= 0))
-          {
-              // _context.Orders.Select(x => x.OrderStatus == Enums.OrderEnum.Purchased);
-               result.Select(x => x.order)
-
-               result.Select(x=>x.Stock - number);
-              await _context.SaveChangesAsync();
-              return (await result.FirstOrDefaultAsync(), true);
-          }
-          _context.Orders.Select(x => x.OrderStatus == Enums.OrderEnum.Purchased);
-          await _context.SaveChangesAsync();*/
-
-        /*  return (result, false);
-      }*/
-
+       
         public async Task<List<Order>> getallOrder()
         {
-            var data = await _context.Orders.Where(x => x.OrderStatus == Enums.OrderEnum.AddedToCart).ToListAsync();
-            return data;
+            try
+            {
+                var data = await _context.Orders.Where(x => x.OrderStatus == Enums.OrderEnum.AddedToCart).ToListAsync();
+                return data;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            return null;
         }
 
         public async Task<bool> RemoveOrder(int id)
         {
-            var data = await _context.Orders.FindAsync(id);
-            if (data != null)
+            try
             {
-                data.OrderStatus = Enums.OrderEnum.Canceled;
-                await _context.SaveChangesAsync();
-                return true;
+                var data = await _context.Orders.FindAsync(id);
+                if (data != null)
+                {
+                    data.OrderStatus = Enums.OrderEnum.Canceled;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
             }
             return false;
         }
-         
-
-
 
     }
 }

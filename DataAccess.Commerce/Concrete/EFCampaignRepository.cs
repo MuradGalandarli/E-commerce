@@ -3,6 +3,7 @@ using EntityCommerce;
 using EntityCommerce.Enum;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Stripe;
 using System;
 using System.Collections.Generic;
@@ -18,81 +19,121 @@ namespace DataAccess.Commerce.Concrete
         private readonly ApplicationContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailDal _emailDal;
+        private readonly ILogger<EFCampaignRepository> _logger;
         public EFCampaignRepository(ApplicationContext _context,
             UserManager<ApplicationUser> _userManager,
-             IEmailDal _emailDal)
+             IEmailDal _emailDal
+            , ILogger<EFCampaignRepository> _logger)
         {
             this._context = _context;
             this._userManager = _userManager;
             this._emailDal = _emailDal;
+            this._logger = _logger;
         }
         public async Task<Campaign> AddCampaign(Campaign campaign)
         {
-            if (campaign.EndDate > DateTime.UtcNow)
+            try
             {
-                var checkGoods = await _context.Goodses.AnyAsync(x => x.SellerId == campaign.SellerId && x.GoodsId == campaign.GoodsId && x.Status == true);
-                if (checkGoods)
+                if (campaign.EndDate > DateTime.UtcNow)
                 {
-                    var checkCampaign = await _context.Campaigns.AnyAsync(x => x.SellerId == campaign.SellerId && x.GoodsId == campaign.GoodsId && x.IsDeleted == true);
-                    if (!checkCampaign)
+                    var checkGoods = await _context.Goodses.AnyAsync(x => x.SellerId == campaign.SellerId && x.GoodsId == campaign.GoodsId && x.Status == true);
+                    if (checkGoods)
                     {
-                        var goodsData = await _context.Goodses.Where(x => x.GoodsId == campaign.GoodsId).FirstOrDefaultAsync();
-
-                        var userIdList = await _context.Orders.Where
-                            (x => x.GoodsId == campaign.GoodsId && x.OrderStatus == Enums.OrderEnum.AddedToCart).
-                            Select(x => x.UserId).ToListAsync();
-
-                        var appUserId = await _context.Users.Where(x => userIdList.Contains(x.UserId)).
-                            Select(x => new { x.ApplicationUserId ,x.UserName }).ToListAsync();
-
-                        foreach (var item in appUserId)
+                        var checkCampaign = await _context.Campaigns.AnyAsync(x => x.SellerId == campaign.SellerId && x.GoodsId == campaign.GoodsId && x.IsDeleted == true);
+                        if (!checkCampaign)
                         {
-                            var data = await _userManager.FindByIdAsync(item.ApplicationUserId);
-                           await _emailDal.SendEmailAsync(data.Email, "Hello " + item.UserName, "The " + goodsData.GoodsName +" cost "+campaign.DiscountRate + " for 100");
-                        }
+                            var goodsData = await _context.Goodses.Where(x => x.GoodsId == campaign.GoodsId).FirstOrDefaultAsync();
 
-                        await _context.Campaigns.AddAsync(campaign);
-                        await _context.SaveChangesAsync();
-                        return campaign;
-                    }
-                }
+                            var userIdList = await _context.Orders.Where
+                                (x => x.GoodsId == campaign.GoodsId && x.OrderStatus == Enums.OrderEnum.AddedToCart).
+                                Select(x => x.UserId).ToListAsync();
+
+                            var appUserId = await _context.Users.Where(x => userIdList.Contains(x.UserId)).
+                                Select(x => new { x.ApplicationUserId, x.UserName }).ToListAsync();
+
+                            foreach (var item in appUserId)
+                            {
+                                var data = await _userManager.FindByIdAsync(item.ApplicationUserId);
+                                await _emailDal.SendEmailAsync(data.Email, "Hello " + item.UserName, "The " + goodsData.GoodsName + " cost " + campaign.DiscountRate + " for 100");
+                            }
+
+                            await _context.Campaigns.AddAsync(campaign);
+                            await _context.SaveChangesAsync();
+                            return campaign;
+                        }
+                    } 
+                }  
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return null;
         }
 
         public async Task<List<Campaign>> AllListCampaign()
         {
-            var result = await _context.Campaigns.Where(x => x.IsDeleted == true).ToListAsync();
-            return result;
+            try
+            {
+                var result = await _context.Campaigns.Where(x => x.IsDeleted == true).ToListAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
+            return null;
         }
 
         public async Task<(Campaign, bool IsSuccess)> DeleteCampaign(int id)
         {
-            var result = await this.GetByIdCampaign(id);
-            if (result != null)
+            try
             {
-                result.IsDeleted = false;
-                await _context.SaveChangesAsync();
-                return (result, true);
+                var result = await this.GetByIdCampaign(id);
+                if (result != null)
+                {
+                    result.IsDeleted = false;
+                    await _context.SaveChangesAsync();
+                    return (result, true);
+                }
             }
-            return (result, false);
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
+            return (null, false);
         }
 
         public async Task<Campaign> GetByIdCampaign(int id)
         {
-            var result = await _context.Campaigns.FirstOrDefaultAsync(x => x.Id == id);
-            if (result != null)
+            try
             {
-                return result;
+                var result = await _context.Campaigns.FirstOrDefaultAsync(x => x.Id == id);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return null;
         }
 
         public async Task<Campaign> UpdateCampaign(Campaign campign)
         {
-            _context.Campaigns.Update(campign);
-            await _context.SaveChangesAsync();
-            return campign;
+            try
+            {
+                _context.Campaigns.Update(campign);
+                await _context.SaveChangesAsync();
+                return campign;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
+            return null;
         }
     }
 }

@@ -24,6 +24,12 @@ namespace Business.Commerce.ConcretCostumer
             return result;
         }
 
+        public async Task<string> GetShareLink(int goodsId)
+        {
+            var result = await _costumerGoodsyDal.GetShareLink(goodsId);
+            return result;
+        }
+
         public async Task<List<Goods>> searchForGoodsByCategory(string category)
         {
             var result = await _costumerGoodsyDal.searchForGoodsByCategory(category);

@@ -2,6 +2,7 @@
 using EntityCommerce;
 using EntityCommerce.Enum;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,53 +15,103 @@ namespace DataAccess.Commerce.ConcreteCostumer
     public class EFAnswerRepositoryCostumer : ICostumerAnswerDal
     {
         private readonly ApplicationContext _context;
-        public EFAnswerRepositoryCostumer(ApplicationContext context)
+        private readonly ILogger<EFAnswerRepositoryCostumer> _logger;
+        public EFAnswerRepositoryCostumer(ApplicationContext context,
+            ILogger<EFAnswerRepositoryCostumer> _logger)
         {
-
             _context = context;
-
+            this._logger = _logger;
         }
         public async Task<Answer> AddAnswer(Answer answer)
         {
+<<<<<<< Updated upstream
             var checkUser = await _context.Users.AnyAsync(x => x.UserId == answer.UserId && x.Status == true);
             var checkQuestion = await _context.Questions.AnyAsync(x => x.Status == true);
             if (checkQuestion && checkUser)
+=======
+            try
+>>>>>>> Stashed changes
             {
-                _context.Answers.Add(answer);
-                await _context.SaveChangesAsync();
-                return answer;
+                var checkUser = await _context.Users.AnyAsync(x => x.UserId == answer.UserId && x.Status == true);
+                var checkQuestion = await _context.Questions.AnyAsync(x => x.Status == true);
+                if (checkQuestion && checkUser)
+                {
+                    _context.Answers.Add(answer);
+                    await _context.SaveChangesAsync();
+                    return answer;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return null;
         }
 
         public async Task<bool> DeleteAnswer(int id)
         {
+<<<<<<< Updated upstream
             var result = await GetAnswer(id);
             if (result != null)
+=======
+            try
+>>>>>>> Stashed changes
             {
-                result.Status = false;
-                await _context.SaveChangesAsync();
-                return true;
+                var result = await GetAnswer(id);
+                if (result != null)
+                {
+                    result.Status = false;
+                    await _context.SaveChangesAsync();
+                    return true;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return false;
         }
 
         public async Task<List<Answer>> GetAllListAnswer()
         {
+<<<<<<< Updated upstream
             var result = await _context.Answers.Where(x => x.Status == true).ToListAsync();
             if (result != null)
+=======
+            try
+>>>>>>> Stashed changes
             {
-                return result;
+                var result = await _context.Answers.Where(x => x.Status == true).ToListAsync();
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+               _logger.LogError(ex.ToString());
             }
             return null;
         }
 
         public async Task<Answer> GetAnswer(int id)
         {
+<<<<<<< Updated upstream
             var result = await _context.Answers.FirstOrDefaultAsync(x => x.AnswerId == id && x.Status == true);
             if (result != null)
+=======
+            try
+>>>>>>> Stashed changes
             {
-                return result;
+                var result = await _context.Answers.FirstOrDefaultAsync(x => x.AnswerId == id && x.Status == true);
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.ToString());    
             }
             return null;
 
@@ -69,15 +120,31 @@ namespace DataAccess.Commerce.ConcreteCostumer
 
         public async Task<Answer> UpdateAnswer(Answer answer)
         {
-            var result = await this.GetAnswer(answer.AnswerId);
-            if (result != null)
+            try
             {
+<<<<<<< Updated upstream
                 result.AnswerDate = answer.AnswerDate;
                 result.Status = answer.Status;
                 result.AnswerText = answer.AnswerText;
 
                 await _context.SaveChangesAsync();
                 return result;
+=======
+                var result = await this.GetAnswer(answer.AnswerId);
+                if (result != null)
+                {
+                    result.AnswerDate = answer.AnswerDate;
+                    result.Status = answer.Status;
+                    result.AnswerText = answer.AnswerText;
+
+                    await _context.SaveChangesAsync();
+                    return result;
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+>>>>>>> Stashed changes
             }
             return null;
         }

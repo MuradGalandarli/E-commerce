@@ -9,15 +9,15 @@ namespace Api.E_Commerce.Controllers.Costumer
     public class CategoryCostumerController : ControllerBase
     {
         private readonly ICostumerCategorySevice _categorySevice;
-        public CategoryCostumerController(ICostumerCategorySevice _categorySevice)
+        ILogger<CategoryCostumerController> logger;
+        public CategoryCostumerController(ICostumerCategorySevice _categorySevice,
+            ILogger<CategoryCostumerController> _logger)
         {
             this._categorySevice = _categorySevice;
+            logger = _logger;
+           
         }
-        //test
-        /// <summary>
-        /// test branch
-        /// </summary>
-        /// <returns></returns>
+
 
         [HttpGet("GetAllCategory")]
         public async Task<IActionResult>GetAllCategory()
@@ -25,6 +25,7 @@ namespace Api.E_Commerce.Controllers.Costumer
             var result = await _categorySevice.GetAllList();
             if(result != null)
             {
+                logger.LogInformation("Salam");
                 return Ok(result);
             }
             return BadRequest();

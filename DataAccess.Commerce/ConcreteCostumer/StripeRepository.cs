@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualBasic;
 using Shared.Commerce;
 using Stripe;
@@ -24,230 +25,298 @@ namespace DataAccess.Commerce.ConcreteCostumer
         private readonly StripeClient _stripeClient;
         private readonly ApplicationContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ILogger<StripeRepository> _logger; 
+
 
         public StripeRepository(IConfiguration configuration, ApplicationContext contetx,
-          IEmailDal _emailDal,
-          UserManager<ApplicationUser> _userManager)
+          IEmailDal _emailDal
+          ,UserManager<ApplicationUser> _userManager
+          ,ILogger<StripeRepository> _logger)
         {
             var secretKey = configuration["Stripe:SecretKey"];
             _stripeClient = new StripeClient(secretKey);
             _context = contetx;
             this._emailDal = _emailDal;
             this._userManager = _userManager;   
+            this._logger = _logger; 
         }
 
 
         public async Task<PaymentIntent> CreatePaymentIntentAsync(CreatePaymentIntentRequest paymentIntentRequest)
         {
-            //  var OrId = await _context.Orders.FirstOrDefaultAsync(x => x.UserId == paymentIntentRequest.UserId);
+            try { 
             var result = await _context.Goodses.Where(x => x.GoodsId == paymentIntentRequest.GoodsId && x.Status == true).
                 Include(x => x.Order).Include(x => x.OtherCampaign.Where(x => x.IsDeleted == true && x.EndTime > DateTime.UtcNow)).
                 Include(s => s.Campaigns.Where(x => x.IsDeleted == true && x.EndDate > DateTime.UtcNow)).FirstOrDefaultAsync();
 
 
-            if (result != null)
-            {
-                (decimal, int) DisCountCampign()
+                if (result != null)
                 {
-                    foreach (var item in result.Campaigns)
+                    (decimal, int) DisCountCampign()
                     {
-                        if (item.IsDeleted && item.EndDate > DateTime.UtcNow)
+                        foreach (var item in result.Campaigns)
                         {
-                            return (item.DiscountRate, item.Id);
+                            if (item.IsDeleted && item.EndDate > DateTime.UtcNow)
+                            {
+                                return (item.DiscountRate, item.Id);
+                            }
                         }
+                        return default;
                     }
-                    return default;
-                }
 
-                decimal Prezent(decimal price, decimal prezent)
-                {
-                    decimal result = price / 100 * prezent;
-                    return result;
-                }
-
-                (int numberOfReceipts, int gift, int id) OtherCampaignCount()
-                {
-                    foreach (var item in result.OtherCampaign)
+                    decimal Prezent(decimal price, decimal prezent)
                     {
-                        return (item.NumberOfReceipts, item.GiftNumber, item.OtherCampaignId);
+                        decimal result = price / 100 * prezent;
+                        return result;
                     }
-                    return (default);
-                }
 
-
-
-                foreach (var item in result.Order)
-                {
-                    var totalGift = 0;
-
-                    if (OtherCampaignCount().numberOfReceipts > 0)
+                    (int numberOfReceipts, int gift, int id) OtherCampaignCount()
                     {
-                        totalGift += (item.NumberOfGoods / OtherCampaignCount().Item1) * OtherCampaignCount().gift;
-
-                    }
-                    int totalNumberOfGoods = item.NumberOfGoods + totalGift;
-
-                    if (item.UserId == paymentIntentRequest.UserId && result.Stock - totalNumberOfGoods >= 0 &&
-                        item.OrderStatus != Enums.OrderEnum.OutOfStock)
-                    {
-                        var disCountCoupon = await _context.CouponGoods.Where(x => x.CouponName == item.CouponName && x.IsDeleted == true).FirstOrDefaultAsync();
-                       
-                        decimal campaignPrezent = 0;
-
-                        if (DisCountCampign().Item2 != 0)
+                        foreach (var item in result.OtherCampaign)
                         {
+                            return (item.NumberOfReceipts, item.GiftNumber, item.OtherCampaignId);
+                        }
+                        return (default);
+                    }
 
-                            campaignPrezent += Prezent((int)result.Price, DisCountCampign().Item1);
+
+
+                    foreach (var item in result.Order)
+                    {
+                        var totalGift = 0;
+
+                        if (OtherCampaignCount().numberOfReceipts > 0)
+                        {
+                            totalGift += (item.NumberOfGoods / OtherCampaignCount().Item1) * OtherCampaignCount().gift;
+
+                        }
+                        int totalNumberOfGoods = item.NumberOfGoods + totalGift;
+
+                        if (item.UserId == paymentIntentRequest.UserId && result.Stock - totalNumberOfGoods >= 0 &&
+                            item.OrderStatus != Enums.OrderEnum.OutOfStock)
+                        {
+                            var disCountCoupon = await _context.CouponGoods.Where(x => x.CouponName == item.CouponName && x.IsDeleted == true).FirstOrDefaultAsync();
+
+                            decimal campaignPrezent = 0;
+
+                            if (DisCountCampign().Item2 != 0)
+                            {
+
+                                campaignPrezent += Prezent((int)result.Price, DisCountCampign().Item1);
+                            }
+
+                            decimal Campaignresult = (int)result.Price - campaignPrezent;
+
+                            if (item.CouponName != null && disCountCoupon != null)
+                            {
+                                campaignPrezent += Prezent(Campaignresult, (int)disCountCoupon.Value);
+                            }
+
+
+                            decimal price = ((int)result.Price - campaignPrezent) * item.NumberOfGoods;
+
+                            var options = new PaymentIntentCreateOptions
+                            {
+                                Amount = (long)(price * 100),
+                                Currency = paymentIntentRequest.Currency,
+                                PaymentMethodTypes = new List<string> { "card" }
+                            };
+
+
+                            var service = new PaymentIntentService(_stripeClient);
+
+                            item.NumberOfGoods = (byte)totalNumberOfGoods;
+                            item.OrderStatus = Enums.OrderEnum.PaymentPending;
+                            item.CouponDiscountedPrice = price;
+                            item.CampaignId = DisCountCampign().Item2;
+                            item.OtherCampaignId = OtherCampaignCount().id;
+                            await _context.SaveChangesAsync();
+                            return await service.CreateAsync(options);
+
                         }
 
-                        decimal Campaignresult = (int)result.Price - campaignPrezent;
-                       
-                        if (item.CouponName != null && disCountCoupon != null)
-                        {
-                            campaignPrezent += Prezent(Campaignresult, (int)disCountCoupon.Value);
-                        }
-
-
-                        decimal price = ((int)result.Price - campaignPrezent) * item.NumberOfGoods;
-
-                        var options = new PaymentIntentCreateOptions
-                        {
-                            Amount = (long)(price * 100),
-                            Currency = paymentIntentRequest.Currency,
-                            PaymentMethodTypes = new List<string> { "card" }
-                        };
-
-
-                        var service = new PaymentIntentService(_stripeClient);
-
-                        item.NumberOfGoods = (byte)totalNumberOfGoods;
-                        item.OrderStatus = Enums.OrderEnum.PaymentPending;
-                        item.CouponDiscountedPrice = price;
-                        item.CampaignId = DisCountCampign().Item2;
-                        item.OtherCampaignId = OtherCampaignCount().id;
+                        item.OrderStatus = Enums.OrderEnum.OutOfStock;
                         await _context.SaveChangesAsync();
-                        return await service.CreateAsync(options);
-
-                    }
-
-                    item.OrderStatus = Enums.OrderEnum.OutOfStock;
-                    await _context.SaveChangesAsync();
+                    } 
                 }
-
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return null;
-
         }
 
 
         public async Task<Charge> CreateChargeAsync(string source, decimal amount, string currency)
         {
-            var options = new ChargeCreateOptions
+            try
             {
-                Amount = (long)(amount * 100),
-                Currency = currency,
-                Source = source
-            };
+                var options = new ChargeCreateOptions
+                {
+                    Amount = (long)(amount * 100),
+                    Currency = currency,
+                    Source = source
+                };
 
-            var service = new ChargeService(_stripeClient);
-            return await service.CreateAsync(options);
+                var service = new ChargeService(_stripeClient);
+                return await service.CreateAsync(options);
+            }
+            catch ( Exception ex)
+                 {
+                    _logger.LogError(ex.ToString());    
+                }
+            return null;
+
         }
 
         public async Task<Customer> CreateCustomerAsync(string email, string description)
         {
-            var options = new CustomerCreateOptions
+            try
             {
-                Email = email,
-                Description = description
-            };
+                var options = new CustomerCreateOptions
+                {
+                    Email = email,
+                    Description = description
+                };
 
-            var service = new CustomerService(_stripeClient);
-            return await service.CreateAsync(options);
+                var service = new CustomerService(_stripeClient);
+                return await service.CreateAsync(options);
+            }
+            catch ( Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
+            return null;
         }
 
         public async Task<PaymentIntent> ConfirmPaymentIntentAsync(string paymentIntentId)
         {
-            var service = new PaymentIntentService(_stripeClient);
-            var result = await service.ConfirmAsync(paymentIntentId);
-            var payId = await _context.Patments.FirstOrDefaultAsync(x => x.PaymentID == paymentIntentId);
-            if (payId != null)
+            try
             {
-                var ordData = await _context.Orders.FirstOrDefaultAsync(x => x.UserId == payId.UserID);
-                if (ordData != null)
-                {
-                    var numberOfGoodsSold = await _context.Goodses.Where(a => a.GoodsId == ordData.GoodsId && a.Status == true).
-                        Select(x => x.Stock).FirstOrDefaultAsync();
-                    if (numberOfGoodsSold != null)
-                    {
-                        numberOfGoodsSold = ordData.NumberOfGoods;
-                        ordData.OrderStatus = Enums.OrderEnum.PaymentCompleted;
-                    }
 
+                var service = new PaymentIntentService(_stripeClient);
+                var result = await service.ConfirmAsync(paymentIntentId);
+                var payId = await _context.Patments.FirstOrDefaultAsync(x => x.PaymentID == paymentIntentId);
+                if (payId != null)
+                {
+                    var ordData = await _context.Orders.FirstOrDefaultAsync(x => x.UserId == payId.UserID);
+                    if (ordData != null)
+                    {
+                        var numberOfGoodsSold = await _context.Goodses.Where(a => a.GoodsId == ordData.GoodsId && a.Status == true).
+                            Select(x => x.Stock).FirstOrDefaultAsync();
+                        if (numberOfGoodsSold != null)
+                        {
+                            numberOfGoodsSold = ordData.NumberOfGoods;
+                            ordData.OrderStatus = Enums.OrderEnum.PaymentCompleted;
+                        }
+
+                    }
                 }
+                return result;
             }
-            return result;
+           
+            
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+            }
+            return null;
         }
 
         public async Task<Payment> AddIdOfPayment(Payment payment)
         {
-            if (await GetByIdPayment(payment.UserID) == null)
+            try
             {
 
-                await _context.Patments.AddAsync(payment);
-                await _context.SaveChangesAsync();
+                if (await GetByIdPayment(payment.UserID) == null)
+                {
+
+                    await _context.Patments.AddAsync(payment);
+                    await _context.SaveChangesAsync();
+                    return payment;
+                }
                 return payment;
             }
-            return payment;
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
+            return null;
 
         }
 
         public async Task<Payment> GetByIdPayment(int UserId)
         {
-            var result = await _context.Patments.FirstOrDefaultAsync(x => x.UserID == UserId);
-            return result;
+            try
+            {
+                var result = await _context.Patments.FirstOrDefaultAsync(x => x.UserID == UserId);
+                return result;
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.ToString());    
+            }
+            return null;
         }
 
         public async Task<Payment> PaymentIdUpdate(Payment payment)
         {
-            var result = await GetByIdPayment(payment.UserID);
-            if (result != null)
+            try
             {
+                var result = await GetByIdPayment(payment.UserID);
+                if (result != null)
+                {
 
-                result.PaymentID = payment.PaymentID;
-                result.UserID = payment.UserID;
-                result.CustomerID = payment.CustomerID;
-                await _context.SaveChangesAsync();
+                    result.PaymentID = payment.PaymentID;
+                    result.UserID = payment.UserID;
+                    result.CustomerID = payment.CustomerID;
+                    await _context.SaveChangesAsync();
+                    return payment;
+                }
                 return payment;
             }
-            return payment;
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+            }
+            return null;
         }
 
 
         public async Task<Refund> RefundPaymentAsync(int userId, int goodsId)
         {
-            var AppId = await _context.Users.Where(x => x.UserId == userId).Select(x=>x.ApplicationUserId).FirstOrDefaultAsync();
-            var findEmail = await _userManager.FindByIdAsync(AppId);
-
-            var data = await _context.Patments.Where(x => x.UserID == userId).FirstOrDefaultAsync();
-            var result = await _context.Orders.
-                Where(x => x.UserId == userId && x.GoodsId == goodsId && x.OrderStatus == Enums.OrderEnum.PaymentCompleted).FirstOrDefaultAsync();
-            if (result != null)
+            try
             {
-                var refundOptions = new RefundCreateOptions
 
+                var AppId = await _context.Users.Where(x => x.UserId == userId).Select(x => x.ApplicationUserId).FirstOrDefaultAsync();
+                var findEmail = await _userManager.FindByIdAsync(AppId);
+
+                var data = await _context.Patments.Where(x => x.UserID == userId).FirstOrDefaultAsync();
+                var result = await _context.Orders.
+                    Where(x => x.UserId == userId && x.GoodsId == goodsId && x.OrderStatus == Enums.OrderEnum.PaymentCompleted).FirstOrDefaultAsync();
+                if (result != null)
                 {
+                    var refundOptions = new RefundCreateOptions
 
-                    Charge = data.CustomerID,
-                    Amount = (long)(result.CouponDiscountedPrice * 100),
-                };
+                    {
 
-                var refundService = new RefundService();
-                Refund refund = await refundService.CreateAsync(refundOptions);
-                result.OrderStatus = Enums.OrderEnum.Canceled;
-                await _emailDal.SendEmailAsync(findEmail.Email, "State of affairs", "Your payment will be returned within 2 or 5 business days");
-                await _context.SaveChangesAsync();
-                return refund;
-               
+                        Charge = data.CustomerID,
+                        Amount = (long)(result.CouponDiscountedPrice * 100),
+                    };
+
+                    var refundService = new RefundService();
+                    Refund refund = await refundService.CreateAsync(refundOptions);
+                    result.OrderStatus = Enums.OrderEnum.Canceled;
+                    await _emailDal.SendEmailAsync(findEmail.Email, "State of affairs", "Your payment will be returned within 2 or 5 business days");
+                    await _context.SaveChangesAsync();
+                    return refund;
+
+                }
+            }
+            catch(Exception ex)
+            {
+                _logger.LogError(ex.ToString());
             }
             return null;
         }

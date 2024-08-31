@@ -11,5 +11,6 @@ namespace Business.Commerce.AbstractCostumer
     {
         public Task<List<Goods>> searchForGoodsByCategory(string category);
         public List<Goods> SearchGoods(Goods goods);
+        public Task<string> GetShareLink(int goodsId);
     }
 }

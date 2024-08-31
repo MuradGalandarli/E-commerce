@@ -2,6 +2,8 @@
 using EntityCommerce;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace Api.E_Commerce.Controllers.Costumer
 {
@@ -30,7 +32,14 @@ namespace Api.E_Commerce.Controllers.Costumer
             var result = await _costumerGoodsService .searchForGoodsByCategory(category);
             if (result != null)
             {
-                return Ok(result);
+                var options = new JsonSerializerOptions
+                {
+                    ReferenceHandler = ReferenceHandler.Preserve,
+                    WriteIndented = true
+                };
+
+                string jsonString = JsonSerializer.Serialize(result, options);
+                return Ok(jsonString);
             }
             return BadRequest();
         }
@@ -45,6 +54,22 @@ namespace Api.E_Commerce.Controllers.Costumer
             }
             return BadRequest();    
         }
+        [HttpPost("GetShareLink")]
+        public async Task<IActionResult> GetShareLink(int goodsId)
+        { 
+          var result = await _costumerGoodsService.GetShareLink(goodsId);
+            if(result != null)
+            {
+                return Ok(result);
+            }
+            return NotFound();
+
+        }
+         
+
+
+
+
 
     }
 }

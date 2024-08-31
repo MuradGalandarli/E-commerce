@@ -1,6 +1,7 @@
 ﻿using DataAccess.Commerce.Abstract;
 using Microsoft.AspNetCore.Http;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -15,61 +16,72 @@ namespace DataAccess.Commerce.Concrete
     {
 
          private readonly ApplicationContext _context;
-             
-        public EFImageRepository(ApplicationContext context):base(context)
+        private readonly ILogger<EFImageRepository> _logger;
+        public EFImageRepository(ApplicationContext context
+            , ILogger<EFImageRepository> _logger) :base(context,_logger)
         {
-
             _context = context;
-
+            this._logger = _logger;
         }
 
         public async Task<EntityCommerce.Image> DeleteImage(int imageId)
         {
-          var result = await _context.Images.FindAsync(imageId);
-            if (result != null)
+            try
             {
-                result.IsDeleted = false;
-                await _context.SaveChangesAsync();
-                return result;
+                var result = await _context.Images.FindAsync(imageId);
+                if (result != null)
+                {
+                    result.IsDeleted = false;
+                    await _context.SaveChangesAsync();
+                    return result;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
             }
             return null;
         }
 
-        public Task<EntityCommerce.Image> GetImageFile(int goodsId)
-        {
-            throw new NotImplementedException();
-        }
+       
 
         public async Task<EntityCommerce.Image> Upload(IFormFile imageFile,int goodsId)
         {
-            if (imageFile.FileName.Length <= 0 || imageFile.FileName == null)
+            try
             {
-                return null;
+                if (imageFile.FileName.Length <= 0 || imageFile.FileName == null)
+                {
+                    return null;
+                }
+
+                string uplaudFile = Path.Combine(Directory.GetCurrentDirectory(), "D:\\OnlayinTicaret");
+
+                string fileName = Path.GetFileName(imageFile.FileName);
+
+                string pathCombine = Path.Combine(uplaudFile, fileName);
+
+                using (var fileStrim = new FileStream(pathCombine, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStrim);
+                }
+                EntityCommerce.Image image = new()
+                {
+                    OriginalPath = imageFile.FileName,
+                    SavedPath = pathCombine,
+                    UploadedAt = DateTime.UtcNow,
+                    GoodsId = goodsId
+
+                };
+                _context.Images.Add(image);
+                await _context.SaveChangesAsync();
+
+                return image;
             }
-
-            string uplaudFile = Path.Combine(Directory.GetCurrentDirectory(), "D:\\OnlayinTicaret");
-
-            string fileName = Path.GetFileName(imageFile.FileName);
-
-            string pathCombine = Path.Combine(uplaudFile, fileName);
-
-            using (var fileStrim = new FileStream(pathCombine,FileMode.Create))
+            catch(Exception ex)
             {
-                await imageFile.CopyToAsync(fileStrim);
+                _logger.LogError(ex.Message);
             }
-            EntityCommerce.Image image = new()
-            {
-                OriginalPath = imageFile.FileName,
-                SavedPath = pathCombine,
-                UploadedAt = DateTime.UtcNow,
-                GoodsId = goodsId
-            
-            };
-            _context.Images.Add(image); 
-            await _context.SaveChangesAsync();
-             
-            return image;    
-
+            return null;
         }
 
     }
