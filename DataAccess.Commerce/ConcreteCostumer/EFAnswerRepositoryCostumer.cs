@@ -44,7 +44,6 @@ namespace DataAccess.Commerce.ConcreteCostumer
 
         public async Task<bool> DeleteAnswer(int id)
         {
-
             try
             {
                 var result = await GetAnswer(id);
@@ -81,7 +80,6 @@ namespace DataAccess.Commerce.ConcreteCostumer
 
         public async Task<Answer> GetAnswer(int id)
         {
-        
             try
             {
                 var result = await _context.Answers.FirstOrDefaultAsync(x => x.AnswerId == id && x.Status == true);
@@ -94,7 +92,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
             {
                 _logger.LogError(ex.ToString());    
             }
-            return null;
+           return null;
 
 
         }
