@@ -58,6 +58,12 @@ namespace Business.Commerce.Concret
             return await _orderCostmerDal.getallOrder();
         }
 
+        public async Task<Report> ReportGoods(Report report)
+        {
+            var result = await _orderDal.ReportGoods(report);
+            return result;  
+        }
+
         public async Task<(Enums.OrderEnum, bool IsSucces)> ShippedGoods(int userId, int goodsId)
         {
            var result = await _orderDal.ShippedGoods(userId, goodsId);

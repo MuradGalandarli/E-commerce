@@ -21,7 +21,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
         private readonly ApplicationContext _context;
         private readonly ILogger<EFOrderRepositoryCostumer> _logger;
         public EFOrderRepositoryCostumer(ApplicationContext context
-            , ILogger<EFOrderRepositoryCostumer> _logger) : base(context,_logger)
+            , ILogger<EFOrderRepositoryCostumer> _logger) : base(context, _logger)
         {
             _context = context;
             this._logger = _logger;
@@ -41,7 +41,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
             {
                 _logger.LogError(ex.Message);
             }
-            return (default,false);
+            return (default, false);
         }
 
         public async Task<(Order, bool IsSuccess)> AddOrder(Order order)
@@ -77,31 +77,31 @@ namespace DataAccess.Commerce.ConcreteCostumer
             return (order, false);
         }
 
-        public async Task<Enums.OrderEnum> addToBasket(int id,int number)
+        public async Task<Enums.OrderEnum> addToBasket(int id, int number)
         {
-            try 
+            try
             {
-            var result = await _context.Goodses.Where(x => x.GoodsId == id).Include(a=>a.Order).FirstOrDefaultAsync();
-            if (result.Stock - number >= 0)
-            {
-               
-                result.Order.Select(x => x.OrderStatus == Enums.OrderEnum.AddedToCart);
-                await _context.SaveChangesAsync();
-                return Enums.OrderEnum.AddedToCart;
+                var result = await _context.Goodses.Where(x => x.GoodsId == id).Include(a => a.Order).FirstOrDefaultAsync();
+                if (result.Stock - number >= 0)
+                {
+
+                    result.Order.Select(x => x.OrderStatus == Enums.OrderEnum.AddedToCart);
+                    await _context.SaveChangesAsync();
+                    return Enums.OrderEnum.AddedToCart;
+                }
+
+                result.Order.Select(x => x.OrderStatus == Enums.OrderEnum.OutOfStock);
+                return Enums.OrderEnum.OutOfStock;
+
             }
-
-            result.Order.Select(x => x.OrderStatus == Enums.OrderEnum.OutOfStock);
-            return Enums.OrderEnum.OutOfStock;
-
-        }
             catch (Exception ex)
             {
                 _logger.LogError(ex.ToString());
             }
             return default;
-            }
+        }
 
-        public async Task<string> EnterTheCoupon(int orderId,string couponCode)
+        public async Task<string> EnterTheCoupon(int orderId, string couponCode)
         {
             try
             {
@@ -135,7 +135,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
             return null;
         }
 
-       
+
         public async Task<List<Order>> getallOrder()
         {
             try
@@ -169,5 +169,6 @@ namespace DataAccess.Commerce.ConcreteCostumer
             return false;
         }
 
+      
     }
 }

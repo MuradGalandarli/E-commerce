@@ -19,5 +19,6 @@ namespace EntityCommerce
         public string ApplicationUserId { get; set; }
         ApplicationUser ApplicationUser { get; set; }
         public List<Campaign>? Campaigns { get; set; }
+        public List<Report>? Report { get; set; }
     }
 }

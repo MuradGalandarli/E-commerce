@@ -1,4 +1,5 @@
 ﻿using Business.Commerce.Abstract;
+using EntityCommerce;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -35,5 +36,16 @@ namespace Api.E_Commerce.Controllers.Admin
             }
             return BadRequest(new { Status = result.Item1, IsSuccess = result.Item2 });
         }
+        [HttpPost("ReportGoods")]
+        public async Task<IActionResult>CreateReport(Report report)
+        {
+            var result = await _orderService.ReportGoods(report);
+            if(result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+
     }
 }

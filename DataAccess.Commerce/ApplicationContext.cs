@@ -31,6 +31,7 @@ namespace DataAccess.Commerce
         public DbSet<Answer> Answers { get; set; }
         public DbSet<AnswerLike> AnswersLikes { get; set; }
         public DbSet<QuestionLike> QuestionLikes { get; set; }
+        public DbSet<Report> Reports { get; set; }
 
     }
 

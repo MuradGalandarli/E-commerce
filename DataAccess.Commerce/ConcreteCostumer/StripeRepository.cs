@@ -194,26 +194,26 @@ namespace DataAccess.Commerce.ConcreteCostumer
         {
             try
             {
-
                 var service = new PaymentIntentService(_stripeClient);
                 var result = await service.ConfirmAsync(paymentIntentId);
                 var payId = await _context.Patments.FirstOrDefaultAsync(x => x.PaymentID == paymentIntentId);
                 if (payId != null)
                 {
-                    var ordData = await _context.Orders.FirstOrDefaultAsync(x => x.UserId == payId.UserID);
+                    var ordData = await _context.Orders.FirstOrDefaultAsync(x => x.UserId == payId.UserID && x.OrderStatus == Enums.OrderEnum.PaymentPending);
                     if (ordData != null)
                     {
                         var numberOfGoodsSold = await _context.Goodses.Where(a => a.GoodsId == ordData.GoodsId && a.Status == true).
-                            Select(x => x.Stock).FirstOrDefaultAsync();
+                            FirstOrDefaultAsync();
                         if (numberOfGoodsSold != null)
                         {
-                            numberOfGoodsSold = ordData.NumberOfGoods;
+                            numberOfGoodsSold.Stock -= ordData.NumberOfGoods;
                             ordData.OrderStatus = Enums.OrderEnum.PaymentCompleted;
+                            ordData.SellerTime = DateTime.UtcNow;
+                            await _context.SaveChangesAsync();
                         }
-
                     }
-                }
-                return result;
+                  }
+                return null ;
             }
            
             

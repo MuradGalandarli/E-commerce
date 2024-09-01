@@ -71,15 +71,6 @@ namespace Api.E_Commerce.Controllers.Costumer
             }
             return BadRequest();
         }
-        [HttpPost("AnswerLikeOrDisLike")]
-
-        public async Task<IActionResult> AnswerLikeOrDisLike(AnswerLike answerLike)
-        { 
-            var result = await _answerService.AnswerLikeOrDisLike(answerLike);
-            return Ok(result);
 
         }
-
-
     }
-}

@@ -21,6 +21,7 @@ namespace EntityCommerce
         public int? OtherCampaignId { get; set; }
         public decimal? CouponDiscountedPrice { get; set; }
         public int? CampaignId { get; set; }
+        public DateTime? SellerTime { get; set; }
         public OrderEnum OrderStatus { get; set; } = OrderEnum.NotAddedToCart;
         [JsonIgnore]
         public Goods? Goods { get; set; }
