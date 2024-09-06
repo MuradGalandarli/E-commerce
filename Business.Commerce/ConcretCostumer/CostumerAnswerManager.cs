@@ -13,14 +13,21 @@ namespace Business.Commerce.ConcretCostumer
     public class CostumerAnswerManager : ICostumerAnswerService
     {  
         private readonly ICostumerAnswerDal _answerDal;
-        public CostumerAnswerManager(ICostumerAnswerDal _answerDal)
+        private readonly ICostumerGenericRedis<Answer> _costumerGenericRedis;
+        public CostumerAnswerManager(ICostumerAnswerDal _answerDal
+            , ICostumerGenericRedis<Answer> costumerGenericRedis)
         {
             this._answerDal = _answerDal;
+            _costumerGenericRedis = costumerGenericRedis;   
         }
 
         public async Task<Answer> Add(Answer t)
         {
             var result = await _answerDal.AddAnswer(t);
+            if (result != null)
+            {
+                var writeRedis =  await _costumerGenericRedis.AddListRedis("Answer", new List<Answer> { result });
+            }
             return result;
         }
 
@@ -33,6 +40,10 @@ namespace Business.Commerce.ConcretCostumer
         public async Task<bool> Delete(int id)
         {
             var result = await _answerDal.DeleteAnswer(id);
+            if(result)
+            {
+                await _costumerGenericRedis.DeleteListRedis("Answer");
+            }
             return result;
         }
 
@@ -44,12 +55,25 @@ namespace Business.Commerce.ConcretCostumer
 
         public async Task<List<Answer>> GetList()
         {
+            var redisData = await _costumerGenericRedis.GetListRedis("Answer");
+            if(redisData != null && redisData.Count > 0)
+            {
+                return redisData;
+            }
             var result = await _answerDal.GetAllListAnswer();
+            if (result != null && result.Count > 0)
+            {
+                await _costumerGenericRedis.AddListRedis("Answer", result);
+            }
             return result;
         }
         public async Task<Answer> Update(Answer t)
         {
-                var result = await _answerDal.UpdateAnswer(t);
+            var result = await _answerDal.UpdateAnswer(t);
+            if (result != null)
+            {
+                await _costumerGenericRedis.DeleteListRedis("Answer");
+            }
                 return result;
         }
     }

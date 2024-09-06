@@ -46,6 +46,28 @@ namespace DataAccess.Commerce.ConcreteCostumer
             return null;
         }
 
+        public async Task<bool> DeleteComment(int commentId)
+        {
+            var data = await _context.Comments.FirstOrDefaultAsync(x => x.Id == commentId && x.IsDeleted == true);
+            if(data != null)
+            {
+                data.IsDeleted = false;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            return false;    
+        }
+
+        public async Task<List<Comment>> GetAllComment()
+        {
+           var data = await _context.Comments.Where(x => x.IsDeleted == true).ToListAsync();
+            if(data != null)
+            {
+                return data;
+            }
+            return null;
+        }
+
         public async Task<List<Comment>> GetByIdListCommnt(int goodsId)
         {
             try
@@ -59,6 +81,8 @@ namespace DataAccess.Commerce.ConcreteCostumer
             }
             return null;
         }
+
+
 
         public async Task<bool> LikeOrDisLike(int userId, int commentId, int statusLike)
         {
@@ -142,5 +166,10 @@ namespace DataAccess.Commerce.ConcreteCostumer
             return false;
         }
 
+        public async Task<Comment> UpdateComment(Comment comment)
+        {
+            var result = _context.Comments.Update(comment);
+            return comment;
+        }
     }
 }

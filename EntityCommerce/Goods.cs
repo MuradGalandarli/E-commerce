@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace EntityCommerce
@@ -22,20 +23,22 @@ namespace EntityCommerce
         public int? CategoryId { get; set; }
 
         public Category? Category { get; set; }
+     
         public List<Order>? Order { get; set; }
 
         public int? SellerId { get; set; }
         public Seller? Seller { get; set; }
-
-       public List<Image>? Image { get; set; }
+        [JsonIgnore]
+        public List<Image>? Image { get; set; }
 
         public List<Comment>? Comments { get; set; }
-
+    
         public List<Campaign>? Campaigns { get; set; }
-
+     
         public List<CouponGoods>? CouponGoods { get; set; }
-
+      
         public List<OtherCampaign>? OtherCampaign { get; set; }
+      
         public List<FavoriteGoods>? FavoriteGoods { get; set; }  
         
         

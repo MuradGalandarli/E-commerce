@@ -21,6 +21,8 @@ using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Asn1.X509.Qualified;
 using Serilog;
 using Shared.Commerce;
+using StackExchange.Redis;
+using Stripe;
 using System.Text;
 using static Business.Commerce.ConcretCostumer.PaymentManager;
 
@@ -28,8 +30,6 @@ var builder = WebApplication.CreateBuilder(args);
 var Configuration = builder.Configuration;
 builder.Services.AddDbContext<ApplicationContext>(options =>
 options.UseNpgsql(Configuration.GetConnectionString("WebApiDatabase")));
-
-
 
 
 builder.Services.AddScoped<IPaymentService,PaymentService>();
@@ -83,9 +83,6 @@ builder.Services.AddScoped<IImageDal, EFImageRepository>();
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
 
-
-// builder.Services.AddScoped<IEmailService, SmtpEmailService>();
-
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<ApplicationContext>()
         .AddDefaultTokenProviders();
@@ -107,6 +104,47 @@ builder.Services.AddScoped<IUrlHelper>(provider =>
     var actionContext = provider.GetRequiredService<IActionContextAccessor>().ActionContext;
     return new UrlHelper(actionContext);
 });
+
+
+
+/*var builder = WebApplication.CreateBuilder(args);
+
+// Redis bağlantısını yapılandırın
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
+
+// Servisleri kaydedin
+builder.Services.AddScoped(typeof(ICostumerGenericRedis<>), typeof(CostumerRedisManager<>));
+builder.Services.AddScoped<ICostumerCategorySevice, CostumerCategoryManager>();
+
+var app = builder.Build();
+
+
+*/
+
+
+
+
+
+var redisConnectionString = Configuration.GetSection("ConnectionStringRedis").GetValue<string>("Redis");
+var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString);
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(redisConnection);
+builder.Services.AddScoped(typeof(ICostumerGenericRedis<>), typeof(CostumerRedisManager<>));
+
+
+
+
+
+
+
+
+//var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
+
+
+
+
+
 
 
 builder.Services.AddHttpContextAccessor();

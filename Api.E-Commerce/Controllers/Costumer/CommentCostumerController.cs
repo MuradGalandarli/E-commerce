@@ -19,18 +19,18 @@ namespace Api.E_Commerce.Controllers.Costumer
         public async Task<IActionResult> CreateComment(Comment comment)
         {
             var result = await _costumerCommentService.CreateComment(comment);
-            if(result != null)
+            if (result != null)
             {
                 return Ok(result);
             }
             return BadRequest();
         }
 
-        [HttpGet("GetByIdListCommnt")]
+        [HttpGet("GetByIdListCommnt{goodsId}")]
         public async Task<IActionResult> GetList(int goodsId)
         {
             var result = await _costumerCommentService.GetByIdListCommnt(goodsId);
-            if(result != null && result.Count > 0)
+            if (result != null && result.Count > 0)
             {
                 return Ok(result);
             }
@@ -41,11 +41,33 @@ namespace Api.E_Commerce.Controllers.Costumer
         {
             var result = await _costumerCommentService.LikeOrDisLike(userId, commentId, statusLike);
             return result;
-         }
-
-
-
-
+        }
+        [HttpGet("GetAllComment")]
+        public async Task<IActionResult> GetAllComment()
+        {
+            var result = await _costumerCommentService.GetAllComment();
+            if (result != null)
+            {
+                return Ok(result);
+            }
+            return BadRequest();
+        }
+        [HttpDelete("DeleteComment{id}")]
+        public async Task<IActionResult> DeleteComment(int id)
+        {
+            var IsSuccess = await _costumerCommentService.DeleteComment(id);
+            if (IsSuccess)
+            {
+                return Ok(IsSuccess);
+            }
+            return BadRequest();
+        }
+        [HttpPut("UpdateComment")]
+        public async Task<IActionResult> UpdateComment([FromBody]Comment comment)
+        {
+            var result = await _costumerCommentService.UpdateComment(comment);
+            return Ok(result);
+        }
 
     }
 }

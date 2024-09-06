@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace EntityCommerce
@@ -15,7 +16,8 @@ namespace EntityCommerce
         public string? OriginalPath { get; set; }
         public string? SavedPath { get; set; }
         public DateTime UploadedAt { get; set; }     
-        public int? GoodsId { get; set; }    
+        public int? GoodsId { get; set; }
+        [JsonIgnore]
         public Goods? Goods { get; set; }
         public bool IsDeleted { get; set; } = true;
 

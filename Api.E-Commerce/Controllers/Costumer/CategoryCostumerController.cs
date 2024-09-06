@@ -18,18 +18,17 @@ namespace Api.E_Commerce.Controllers.Costumer
            
         }
 
-
         [HttpGet("GetAllCategory")]
         public async Task<IActionResult>GetAllCategory()
         {
             var result = await _categorySevice.GetAllList();
+
             if(result != null)
-            {
-                logger.LogInformation("Salam");
+            {             
                 return Ok(result);
             }
             return BadRequest();
-        }
+         }
        
 
     }

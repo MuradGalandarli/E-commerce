@@ -20,8 +20,7 @@ namespace DataAccess.Commerce.ConcreteCostumer
             this._context = _context;
             this._logger = _logger;
         }
-
-     
+  
 public async Task<List<Category>> getAllList()
         {
             try
