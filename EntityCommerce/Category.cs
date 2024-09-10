@@ -11,9 +11,7 @@ namespace EntityCommerce
     {
         public int CategoryId { get; set; }
         public string CategoryName { get; set; }
-        [JsonIgnore]
         public bool CategoryStatus { get; set; }
-
         public List<Goods>? Goods { get; set; }
 
      

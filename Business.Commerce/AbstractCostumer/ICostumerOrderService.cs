@@ -1,4 +1,5 @@
-﻿using EntityCommerce;
+﻿using DataTransferObject.EntityDto;
+using EntityCommerce;
 using EntityCommerce.Enum;
 using Shared.Commerce;
 using System;
@@ -13,7 +14,7 @@ namespace Business.Commerce.AbstractCostumer
     {
         public Task<Enums.OrderEnum> addtoBasket(int id, int number);
 
-        public Task<(Order,bool IsSuccess)>AddOrder(Order order);
+        public Task<(OrderDto,bool IsSuccess)>AddOrder(OrderDto order);
         public Task<(Enums.OrderEnum, bool IsSucces)> abilityToTrackOrderStatus(int GoodsId, int UserId);
         public Task<string> EnterTheCoupon(int orderId, string couponCode);
 

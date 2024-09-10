@@ -12,10 +12,5 @@ namespace Business.Commerce.Abstract
     {
         public Task<(CouponGoods, bool IsSuccess)> DeleteCoupon(int id);
 
-        /*  public Task<Coupon> AddCoupon(Coupon coupon);
-          public Task<(Coupon, bool IsSuccess)> DeleteCoupon(int id);
-          public Task<List<Coupon>> AllListCoupon();
-          public Task<Coupon> GetByIdCoupon(int id);
-          public Task<Coupon> UpdateCoupon(Coupon coupon);*/
     }
 }

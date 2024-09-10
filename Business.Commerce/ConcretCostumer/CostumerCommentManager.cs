@@ -1,5 +1,7 @@
-﻿using Business.Commerce.AbstractCostumer;
+﻿using AutoMapper;
+using Business.Commerce.AbstractCostumer;
 using DataAccess.Commerce.AbstractCostumer;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using System;
 using System.Collections.Generic;
@@ -12,70 +14,82 @@ namespace Business.Commerce.ConcretCostumer
     public class CostumerCommentManager : ICostumerCommentService
     {
         private readonly ICostumerCommentDal _costumerCommentDal;
-        private readonly ICostumerGenericRedis<Comment> _costumerGenericRedis;
+        private readonly ICostumerGenericRedis<CommentDto> _costumerGenericRedis;
+        private readonly IMapper _mapper;
         public CostumerCommentManager(ICostumerCommentDal _costumerCommentDal
-            , ICostumerGenericRedis<Comment> costumerGenericRedis)
+            , ICostumerGenericRedis<CommentDto> costumerGenericRedis
+            , IMapper _mapper)
         {
             this._costumerCommentDal = _costumerCommentDal;
             _costumerGenericRedis = costumerGenericRedis;
+            this._mapper = _mapper;
         }
 
-        public async Task<Comment> CreateComment(Comment comment)
+        public async Task<CommentDto> CreateComment(CommentDto comment)
         {
-           var result = await _costumerCommentDal.CreateComment(comment);
-            if(result != null)
+            var commentDto = _mapper.Map<Comment>(comment);
+            var result = await _costumerCommentDal.CreateComment(commentDto);
+            var dtoComment = _mapper.Map<CommentDto>(result);
+            if (result != null)
             {
-                await _costumerGenericRedis.AddListRedis("Comment",new List<Comment>{ result});
+                await _costumerGenericRedis.AddListRedis("Comment", new List<CommentDto> { dtoComment });
             }
-            return result;  
+            return dtoComment;
         }
 
         public async Task<bool> DeleteComment(int commentId)
         {
             var IsDelete = await _costumerCommentDal.DeleteComment(commentId);
-            if(IsDelete)
+            if (IsDelete)
             {
                 await _costumerGenericRedis.DeleteListRedis("Comment");
             }
             return IsDelete;
         }
 
-        public async Task<List<Comment>> GetAllComment()
+        public async Task<List<CommentDto>> GetAllComment()
         {
             var redisData = await _costumerGenericRedis.GetListRedis("Comment");
-            if(redisData != null && redisData.Count > 0)
+            if (redisData != null && redisData.Count > 0)
             {
                 return redisData;
             }
             var data = await _costumerCommentDal.GetAllComment();
+            var commentDto = _mapper.Map<List<CommentDto>>(data);
             if (data != null && data.Count > 0)
-            {
-                await _costumerGenericRedis.AddListRedis("Comment", data);
-                return data;
+            {   
+
+                await _costumerGenericRedis.AddListRedis("Comment", commentDto);
+                return commentDto;
             }
             return null;
         }
 
-        public async Task<List<Comment>> GetByIdListCommnt(int goodsId)
+        public async Task<List<CommentDto>> GetByIdListCommnt(int goodsId)
         {
             var result = await _costumerCommentDal.GetByIdListCommnt(goodsId);
-            return result;
+            var commentDto = _mapper.Map<List<CommentDto>>(result);
+            return commentDto;
         }
 
         public async Task<bool> LikeOrDisLike(int userId, int commentId, int statusLike)
         {
-            var result = await _costumerCommentDal.LikeOrDisLike(userId, commentId, statusLike);    
-            return result;  
+            var result = await _costumerCommentDal.LikeOrDisLike(userId, commentId, statusLike);
+            return result;
         }
 
-        public async Task<Comment> UpdateComment(Comment comment)
+        public async Task<CommentDto> UpdateComment(CommentDto comment)
         {
-            var updateData = await _costumerCommentDal.Update(comment);
+            var commentDto = _mapper.Map<Comment>(comment);
+            var updateData = await _costumerCommentDal.Update(commentDto);
             if (updateData != null)
             {
                 await _costumerGenericRedis.DeleteListRedis("Comment");
             }
-            return updateData;
+            var omment = _mapper.Map<Comment>(comment);
+            var Dtoomment = _mapper.Map<CommentDto>(updateData);
+
+            return Dtoomment;
         }
 
     }

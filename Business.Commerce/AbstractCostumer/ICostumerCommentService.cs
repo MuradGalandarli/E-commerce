@@ -1,4 +1,5 @@
-﻿using EntityCommerce;
+﻿using DataTransferObject.EntityDto;
+using EntityCommerce;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,11 @@ namespace Business.Commerce.AbstractCostumer
 {
     public interface ICostumerCommentService
     {
-        public Task<Comment> CreateComment(Comment comment);
-        public Task<List<Comment>> GetByIdListCommnt(int goodsId);
-        public Task<List<Comment>> GetAllComment();
+        public Task<CommentDto> CreateComment(CommentDto comment);
+        public Task<List<CommentDto>> GetByIdListCommnt(int goodsId);
+        public Task<List<CommentDto>> GetAllComment();
         public Task<bool> DeleteComment(int commentId);
-        public Task<Comment> UpdateComment(Comment comment);
+        public Task<CommentDto> UpdateComment(CommentDto comment);
         public Task<bool> LikeOrDisLike(int userId, int commentId, int statusLike);
     }
 }

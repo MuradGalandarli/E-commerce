@@ -1,5 +1,7 @@
-﻿using Business.Commerce.AbstractCostumer;
+﻿using AutoMapper;
+using Business.Commerce.AbstractCostumer;
 using DataAccess.Commerce.AbstractCostumer;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using EntityCommerce.Enum;
 using Shared.Commerce;
@@ -14,15 +16,20 @@ namespace Business.Commerce.ConcretCostumer
     public class CostumerOrderManager : ICostumerOrderService
     {
         private readonly ICostumerOrderDal _costumerOrderDal;
-        public CostumerOrderManager(ICostumerOrderDal _costumerOrderDal)
+        private readonly IMapper _mapper;
+        public CostumerOrderManager(ICostumerOrderDal _costumerOrderDal
+            , IMapper _mapper)
         {
             this._costumerOrderDal = _costumerOrderDal;
+            this._mapper = _mapper;
         }
 
-        public async Task<(Order, bool IsSuccess)> AddOrder(Order order)
+        public async Task<(OrderDto, bool IsSuccess)> AddOrder(OrderDto order)
         {
-           var result = await _costumerOrderDal.AddOrder(order); 
-            return result;
+           var orderMap = _mapper.Map<Order>(order);
+           var result = await _costumerOrderDal.AddOrder(orderMap); 
+            var mapOrder = _mapper.Map<OrderDto>(result.Item1);
+            return (mapOrder, result.IsSuccess);
         }
 
         public async Task<Enums.OrderEnum> addtoBasket(int id, int number)
@@ -44,10 +51,5 @@ namespace Business.Commerce.ConcretCostumer
             return result;
         }
 
-        /* public async Task<(Goods, bool IsSuccess)> BuyGoods(BuyGoodsRequest buyGoods)
-         {
-           var result =await _costumerOrderDal.BuyGoods(buyGoods); 
-           return (result.Item1,result.IsSuccess);   
-         }*/
     }
 }

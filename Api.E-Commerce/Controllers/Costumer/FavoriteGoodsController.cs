@@ -1,4 +1,5 @@
 ﻿using Business.Commerce.AbstractCostumer;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -27,9 +28,9 @@ namespace Api.E_Commerce.Controllers.Costumer
         }
 
         [HttpPost("AddFavoriteGoods")]
-        public async Task<IActionResult> AddFavoriteGoods([FromBody] FavoriteGoods favoriteGoods)
+        public async Task<IActionResult> AddFavoriteGoods([FromBody] FavoriteGoodsDto favoriteGoods)
         {
-            var result = await _favouriteGoodsService.AddFavoriteGoods(favoriteGoods);
+             var result = await _favouriteGoodsService.AddFavoriteGoods(favoriteGoods);
             if (result != null)
             {
                 return Ok(result);

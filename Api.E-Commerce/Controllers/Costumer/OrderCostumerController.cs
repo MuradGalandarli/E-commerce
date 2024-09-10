@@ -1,5 +1,6 @@
 ﻿using Business.Commerce.Abstract;
 using Business.Commerce.AbstractCostumer;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,7 +40,7 @@ namespace Api.E_Commerce.Controllers.Costumer
 
         }
         [HttpPost("addOrder")]
-        public async Task<IActionResult> AddOrder(Order order)
+        public async Task<IActionResult> AddOrder(OrderDto order)
         {
             var result = await _costumerOrderService.AddOrder(order);
             if (result.IsSuccess)

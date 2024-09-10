@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
 using System.Text.Json;
+using DataTransferObject.EntityDto;
 
 namespace Api.E_Commerce.Controllers.Costumer
 {
@@ -45,7 +46,7 @@ namespace Api.E_Commerce.Controllers.Costumer
         }
 
         [HttpPost ("SearchGoods")]
-        public IActionResult SearchGodds([FromBody]Goods goods)
+        public IActionResult SearchGodds([FromBody]GoodsDto goods)
         {
             var result =  _costumerGoodsService.SearchGoods(goods);
             if (result != null)

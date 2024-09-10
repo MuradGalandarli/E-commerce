@@ -1,4 +1,5 @@
-﻿using EntityCommerce;
+﻿using DataTransferObject.EntityDto;
+using EntityCommerce;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,9 @@ namespace Business.Commerce.AbstractCostumer
 {
     public interface ICostumerFavoriteGoodsService
     {
-        public Task<FavoriteGoods> AddFavoriteGoods(FavoriteGoods favoriteGoods);
+        public Task<FavoriteGoods> AddFavoriteGoods(FavoriteGoodsDto fvoriteGoods);
         public Task<(FavoriteGoods, bool IsSuccess)> DeleteFavoriteGoods(int id);
-        public Task<List<Goods>> AllListFavoriteGoods(int userId);
+        public Task<List<GoodsDto>> AllListFavoriteGoods(int userId);
 
     }
 }

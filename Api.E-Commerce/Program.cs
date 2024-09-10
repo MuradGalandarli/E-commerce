@@ -7,6 +7,8 @@ using DataAccess.Commerce.Abstract;
 using DataAccess.Commerce.AbstractCostumer;
 using DataAccess.Commerce.Concrete;
 using DataAccess.Commerce.ConcreteCostumer;
+using DataTransferObject.DtoProfile;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -83,6 +85,12 @@ builder.Services.AddScoped<IImageDal, EFImageRepository>();
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
 
+
+
+
+
+
+
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
         .AddEntityFrameworkStores<ApplicationContext>()
         .AddDefaultTokenProviders();
@@ -105,46 +113,11 @@ builder.Services.AddScoped<IUrlHelper>(provider =>
     return new UrlHelper(actionContext);
 });
 
-
-
-/*var builder = WebApplication.CreateBuilder(args);
-
-// Redis bağlantısını yapılandırın
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis");
-builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
-
-// Servisleri kaydedin
-builder.Services.AddScoped(typeof(ICostumerGenericRedis<>), typeof(CostumerRedisManager<>));
-builder.Services.AddScoped<ICostumerCategorySevice, CostumerCategoryManager>();
-
-var app = builder.Build();
-
-
-*/
-
-
-
-
-
 var redisConnectionString = Configuration.GetSection("ConnectionStringRedis").GetValue<string>("Redis");
 var redisConnection = ConnectionMultiplexer.Connect(redisConnectionString);
 
 builder.Services.AddSingleton<IConnectionMultiplexer>(redisConnection);
 builder.Services.AddScoped(typeof(ICostumerGenericRedis<>), typeof(CostumerRedisManager<>));
-
-
-
-
-
-
-
-
-//var configuration = ConfigurationOptions.Parse(redisConnectionString, true);
-
-
-
-
-
 
 
 builder.Services.AddHttpContextAccessor();
@@ -176,6 +149,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAutoMapper(typeof(DtoProfile).Assembly);
 
 var app = builder.Build();
 

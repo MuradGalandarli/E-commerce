@@ -11,11 +11,7 @@ namespace Business.Commerce.AbstractCostumer
 {
     public interface IPaymentService
     {
-        /*   Task<PaymentIntent> CreatePaymentIntentAsync(decimal amount, string currency);
-           Task<Charge> CreateChargeAsync(string source, decimal amount, string currency);
-           Task<Customer> CreateCustomerAsync(string email, string description);
-           Task<PaymentIntent> ConfirmPaymentIntentAsync(string paymentIntentId);*/
-
+      
         public Task<PaymentIntent> CreatePayment(CreatePaymentIntentRequest paymentIntentRequest);
         public Task<Charge> ChargeCustomer(string source, decimal amount, string currency);
         public Task<Customer> RegisterCustomer(string email, string description);

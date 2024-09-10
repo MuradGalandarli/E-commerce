@@ -1,4 +1,5 @@
 ﻿using Business.Commerce.AbstractCostumer;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -37,7 +38,7 @@ namespace Api.E_Commerce.Controllers.Costumer
             return BadRequest();
         }
         [HttpPost("AnswerAdd")]
-        public async Task<IActionResult> AnswerAdd([FromBody]Answer answer)
+        public async Task<IActionResult> AnswerAdd([FromBody]AnswerDto answer)
         {
             var result = await _answerService.Add(answer);
             if(result != null)
@@ -62,7 +63,7 @@ namespace Api.E_Commerce.Controllers.Costumer
         }
 
         [HttpPut("UpdateAnswer")]
-        public async Task<IActionResult> UpdateAnswer(Answer answer)
+        public async Task<IActionResult> UpdateAnswer(AnswerDto answer)
         {
             var result = await _answerService.Update(answer);
             if (result != null)

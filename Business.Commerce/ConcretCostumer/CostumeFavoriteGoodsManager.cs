@@ -1,5 +1,7 @@
-﻿using Business.Commerce.AbstractCostumer;
+﻿using AutoMapper;
+using Business.Commerce.AbstractCostumer;
 using DataAccess.Commerce.AbstractCostumer;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using Newtonsoft.Json;
 using System;
@@ -13,37 +15,37 @@ namespace Business.Commerce.ConcretCostumer
     public class CostumeFavoriteGoodsManager : ICostumerFavoriteGoodsService
     {
         private readonly IFavoriteGoodsDal _favoriteGoodsDal;
-        private readonly ICostumerGenericRedis<Goods> _genericRedisGoods;
+        private readonly ICostumerGenericRedis<GoodsDto> _genericRedisGoods;
+        private readonly IMapper _mapper;
+
         public CostumeFavoriteGoodsManager(IFavoriteGoodsDal _favoriteGoodsDal
-            ,ICostumerGenericRedis<Goods>_genericRedisGoods)
+            ,ICostumerGenericRedis<GoodsDto>_genericRedisGoods
+            ,IMapper _mappper)
         {
             this._favoriteGoodsDal = _favoriteGoodsDal;
             this._genericRedisGoods = _genericRedisGoods;
+            this._mapper = _mappper;
         }
 
-        public async Task<FavoriteGoods> AddFavoriteGoods(FavoriteGoods favoriteGoods)
+        public async Task<FavoriteGoods> AddFavoriteGoods(FavoriteGoodsDto favoriteGoods)
         {
-            var result = await _favoriteGoodsDal.AddFavoriteGoods(favoriteGoods);
-            await _genericRedisGoods.DeleteListRedis("FavoriteGoods");
+            var dtoMapper = _mapper.Map<FavoriteGoods>(favoriteGoods);
+            var result = await _favoriteGoodsDal.AddFavoriteGoods(dtoMapper);
+          
            return result;
         }
 
-        public async Task<List<Goods>> AllListFavoriteGoods(int userId)
+        public async Task<List<GoodsDto>> AllListFavoriteGoods(int userId)
         {
-            var redisData = await _genericRedisGoods.GetListRedis("FavoriteGoods");
-            if(redisData != null && redisData.Count > 0)
-            {
-                return redisData;
-            }
+           
             var result = await _favoriteGoodsDal.AllListFavoriteGoods(userId);
-            await _genericRedisGoods.AddListRedis("FavoriteGoods", result );
-            return result;
+            var dtoData = _mapper.Map<List<GoodsDto>>(result);
+            return dtoData;
         }
 
         public async Task<(FavoriteGoods, bool IsSuccess)> DeleteFavoriteGoods(int id)
         {
             var result = await _favoriteGoodsDal.DeleteFavoriteGoods(id);
-            await _genericRedisGoods.DeleteListRedis("FavoriteGoods");
             return result;
         }
     }

@@ -1,5 +1,8 @@
-﻿using Business.Commerce.Abstract;
+﻿using AutoMapper;
+using Business.Commerce.Abstract;
+using Business.Commerce.AbstractCostumer;
 using DataAccess.Commerce.Abstract;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using System;
 using System.Collections.Generic;
@@ -13,29 +16,41 @@ namespace Business.Commerce.Concret
     public class SellerManager : ISellerService
     {
         private readonly ISellerDal _sellerDal;
+        private readonly ICostumerGenericRedis<SellerDto> _costumerGenericRedis;
 
-        public SellerManager(ISellerDal sellerDal)
+
+        public SellerManager(ISellerDal sellerDal
+        , ICostumerGenericRedis<SellerDto> _costumerGenericRedis)
         {
             _sellerDal = sellerDal;
+            this._costumerGenericRedis = _costumerGenericRedis;
         }
 
         public async Task<Seller> Add(Seller t)
         {
-          await _sellerDal.Add(t);
+            var result = await _sellerDal.Add(t);
+            if (result != null)
+            {
+                await _costumerGenericRedis.DeleteListRedis("SellerRedis");
+            }
             return t;
         }
 
         public async Task<bool> Delete(int id)
         {
-           var isTrue = await _sellerDal.RemoveSeller(id);
+            var isTrue = await _sellerDal.RemoveSeller(id);
+            if (isTrue)
+            {
+                await _costumerGenericRedis.DeleteListRedis("SellerRedis");
+            }
             return isTrue;
         }
 
         public async Task<Seller> GetbyId(int id)
         {
-        var result = await _sellerDal.GetById(id);
+            var result = await _sellerDal.GetById(id);
 
-            if (result == null )
+            if (result == null)
             {
                 return null;
             }
@@ -49,13 +64,17 @@ namespace Business.Commerce.Concret
 
         public async Task<List<Seller>> GetList()
         {
-          return await _sellerDal.getallSeller();
+            return await _sellerDal.getallSeller();
         }
 
         public async Task<Seller> Update(Seller t)
         {
-           await _sellerDal.Update(t);
-            return t;   
+            var result = await _sellerDal.Update(t);
+            if (result != null)
+            {
+                await _costumerGenericRedis.DeleteListRedis("SellerRedis");
+            }
+                return t;
         }
     }
 }

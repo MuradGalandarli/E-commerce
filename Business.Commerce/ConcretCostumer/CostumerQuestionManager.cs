@@ -1,5 +1,7 @@
-﻿using Business.Commerce.AbstractCostumer;
+﻿using AutoMapper;
+using Business.Commerce.AbstractCostumer;
 using DataAccess.Commerce.AbstractCostumer;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using EntityCommerce.Enum;
 using System;
@@ -14,29 +16,35 @@ namespace Business.Commerce.ConcretCostumer
     public class CostumerQuestionManager : ICostumerQuestionService
     {
         private readonly ICostumerQuestionDal _costumerQuestionDal;
-        private readonly ICostumerGenericRedis<Question> _costumerGenericRedis;
+        private readonly ICostumerGenericRedis<QuestionDto> _costumerGenericRedis;
+        private readonly IMapper _mapper;
         public CostumerQuestionManager(ICostumerQuestionDal _costumerQuestionDal
-            , ICostumerGenericRedis<Question> _costumerGenericRedis)
+            , ICostumerGenericRedis<QuestionDto> _costumerGenericRedis
+            , IMapper _mapper)
         {
             this._costumerQuestionDal = _costumerQuestionDal;
             this._costumerGenericRedis = _costumerGenericRedis;
+            this._mapper = _mapper;
         }
 
-        public async Task<Question> Add(Question t)
+        public async Task<QuestionDto> Add(QuestionDto t)
         {
-
-            var result = await _costumerQuestionDal.AddQuestion(t);
+            var questionMap = _mapper.Map<Question>(t);
+            var result = await _costumerQuestionDal.AddQuestion(questionMap);
             if (result != null)
             {
-                await _costumerGenericRedis.AddListRedis("Question",new List<Question> { result });
+                var mapQuestion = _mapper.Map<QuestionDto>(result);
+                await _costumerGenericRedis.AddListRedis("Question", new List<QuestionDto> { mapQuestion });
+                return mapQuestion;
             }
-            return result;
+
+            return null;
         }
 
         public async Task<bool> Delete(int id)
         {
-          var IsSuccess = await  _costumerQuestionDal.DeleteQuestion(id);
-            if(IsSuccess)
+            var IsSuccess = await _costumerQuestionDal.DeleteQuestion(id);
+            if (IsSuccess)
             {
                 await _costumerGenericRedis.DeleteListRedis("Question");
             }
@@ -44,25 +52,32 @@ namespace Business.Commerce.ConcretCostumer
             return IsSuccess;
         }
 
-        public Task<Question> GetbyId(int id)
+        public async Task<QuestionDto> GetbyId(int id)
         {
             var result = _costumerQuestionDal.GetQuestion(id);
-            return result;
+            if (result != null)
+            { 
+                var mapQuestion = _mapper.Map<QuestionDto>(result);
+                return mapQuestion;
+            }
+            return null;
         }
 
-        public async Task<List<Question>> GetList()
+        public async Task<List<QuestionDto>> GetList()
         {
             var redisData = await _costumerGenericRedis.GetListRedis("Question");
-            if(redisData != null && redisData.Count > 0)
+            if (redisData != null && redisData.Count > 0)
             {
                 return redisData;
             }
-           var result = await _costumerQuestionDal.GetAllListQuestion();
-            if(result != null)
+            var result = await _costumerQuestionDal.GetAllListQuestion();
+            if (result != null)
             {
-                await _costumerGenericRedis.AddListRedis("Question", result);
+                var mapQuestion = _mapper.Map<List<QuestionDto>>(result);
+                await _costumerGenericRedis.AddListRedis("Question", mapQuestion);
+                return mapQuestion;
             }
-            return result;
+            return null;
         }
 
         public async Task<Enums.likeEnum> QuestionLikeOrDisLike(QuestionLike questionLike)
@@ -71,14 +86,17 @@ namespace Business.Commerce.ConcretCostumer
             return result;
         }
 
-        public async Task<Question> Update(Question t)
-        {
-            var result = await _costumerQuestionDal.UpdateQuestion(t);
-            if(result != null)
+        public async Task<QuestionDto> Update(QuestionDto t)
+        { 
+            var questionDto = _mapper.Map<Question>(t);
+            var result = await _costumerQuestionDal.UpdateQuestion(questionDto);
+            if (result != null)
             {
+                var Dtoquestion = _mapper.Map<QuestionDto>(t);
                 await _costumerGenericRedis.DeleteListRedis("Question");
+                return Dtoquestion;
             }
-            return result;
+            return null;
         }
     }
 }

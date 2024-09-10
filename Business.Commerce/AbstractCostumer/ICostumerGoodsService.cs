@@ -1,4 +1,5 @@
-﻿using EntityCommerce;
+﻿using DataTransferObject.EntityDto;
+using EntityCommerce;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Business.Commerce.AbstractCostumer
 {
-    public interface ICostumerGoodsService:IGenericCostumer<Goods>
+    public interface ICostumerGoodsService:IGenericCostumer<GoodsDto>
     {
-        public Task<List<Goods>> searchForGoodsByCategory(string category);
-        public List<Goods> SearchGoods(Goods goods);
+        public Task<List<GoodsDto>> searchForGoodsByCategory(string category);
+        public List<GoodsDto> SearchGoods(GoodsDto goods);
         public Task<string> GetShareLink(int goodsId);
     }
 }

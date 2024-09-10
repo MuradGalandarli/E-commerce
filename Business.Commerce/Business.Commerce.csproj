@@ -14,6 +14,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataAccess.Commerce\DataAccess.Commerce.csproj" />
+    <ProjectReference Include="..\DataTransferObjects.Commerce\DataTransferObjects.Commerce.csproj" />
+    <ProjectReference Include="..\DataTransferObject\DataTransferObject.csproj" />
+    <ProjectReference Include="..\EntityCommerce\EntityCommerce.csproj" />
     <ProjectReference Include="..\Shared.Commerce\Shared.Commerce.csproj" />
   </ItemGroup>
 

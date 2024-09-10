@@ -1,6 +1,8 @@
-﻿using Business.Commerce.AbstractCostumer;
+﻿using AutoMapper;
+using Business.Commerce.AbstractCostumer;
 using DataAccess.Commerce.Abstract;
 using DataAccess.Commerce.AbstractCostumer;
+using DataTransferObject.EntityDto;
 using EntityCommerce;
 using System;
 using System.Collections.Generic;
@@ -14,24 +16,29 @@ namespace Business.Commerce.ConcretCostumer
     public class CostumerGoodsManager:ICostumerGoodsService
     {
         private readonly ICostumerGoodsDal _costumerGoodsyDal;
-        private readonly ICostumerGenericRedis<Goods> _costumerGenericRedis;
+        private readonly ICostumerGenericRedis<GoodsDto> _costumerGenericRedis;
+        private readonly IMapper _mapper;
         public CostumerGoodsManager(ICostumerGoodsDal _costumerGoodsyDal
-            , ICostumerGenericRedis<Goods> _costumerGenericRedis)
+            , ICostumerGenericRedis<GoodsDto> _costumerGenericRedis
+            , IMapper _mapper)
         {
             this._costumerGoodsyDal = _costumerGoodsyDal;
             this._costumerGenericRedis = _costumerGenericRedis;
+            this._mapper = _mapper;
         }
 
-        public async Task<List<Goods>> GetAllList()
+        public async Task<List<GoodsDto>> GetAllList()
         {
+            
             var redisData = await _costumerGenericRedis.GetListRedis("GetAllGoods");
             if(redisData != null && redisData.Count > 0)
             {
                 return redisData;
             }
             var result = await _costumerGoodsyDal.getAllList();
-            await _costumerGenericRedis.AddListRedis("GetAllGoods", result);
-            return result;
+            var goodsDto = _mapper.Map<List<GoodsDto>>(result);
+            await _costumerGenericRedis.AddListRedis("GetAllGoods", goodsDto);
+            return goodsDto;
         }
 
         public async Task<string> GetShareLink(int goodsId)
@@ -40,16 +47,19 @@ namespace Business.Commerce.ConcretCostumer
             return result;
         }
 
-        public async Task<List<Goods>> searchForGoodsByCategory(string category)
+        public async Task<List<GoodsDto>> searchForGoodsByCategory(string category)
         {
             var result = await _costumerGoodsyDal.searchForGoodsByCategory(category);
-            return result;
+            var goodsDto = _mapper.Map<List<GoodsDto>>(result);
+            return goodsDto;
         }
 
-        public List<Goods> SearchGoods(Goods goods)
+        public List<GoodsDto> SearchGoods(GoodsDto goods)
         {
-            var result =  _costumerGoodsyDal.SearchGoods(goods);
-            return result;
+            var dtoGoods = _mapper.Map<Goods>(goods);
+            var result =  _costumerGoodsyDal.SearchGoods(dtoGoods);
+            var goodsDto = _mapper.Map<List<GoodsDto>>(result);
+            return goodsDto;
         }
     }
 }
