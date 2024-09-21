@@ -82,9 +82,10 @@ builder.Services.AddScoped<ApplicationContext>();
 builder.Services.AddScoped<ICategoryService, CategoryManager>();
 builder.Services.AddScoped<IImageService, ImageManager>();
 builder.Services.AddScoped<IImageDal, EFImageRepository>();
+builder.Services.AddScoped<ICostumerSellerService , CostumerSellerManager >();
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
-
+builder.Services.AddScoped<CostumerRedisManager<SellerDto>>();
 
 
 
