@@ -36,7 +36,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Business.Commerce\Business.Commerce.csproj" />
     <ProjectReference Include="..\DataTransferObjects.Commerce\DataTransferObjects.Commerce.csproj" />
-    <ProjectReference Include="..\DataTransferObject\DataTransferObject.csproj" />
   </ItemGroup>
 
 </Project>
